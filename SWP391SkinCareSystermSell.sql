@@ -230,18 +230,6 @@ CREATE TABLE delivery_details (
 );
 GO
 
--- Bảng inventory_logs (Nhật ký kho hàng)
-CREATE TABLE inventory_logs (
-    log_id INT IDENTITY(1,1) PRIMARY KEY,
-    product_id INT NOT NULL,
-    quantity_change INT NOT NULL,
-    log_type VARCHAR(50) NOT NULL,
-    log_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    reason NVARCHAR(MAX) NULL,
-    CONSTRAINT fk_inventory_logs_product FOREIGN KEY (product_id) REFERENCES products(product_id)
-);
-GO
-
 -- Bảng promotion_applications (Áp dụng khuyến mãi)
 CREATE TABLE promotion_applications (
     application_id INT IDENTITY(1,1) PRIMARY KEY,
