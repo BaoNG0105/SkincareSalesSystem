@@ -76,16 +76,6 @@ CREATE TABLE user_details (
 );
 GO
 
--- Bảng cancellation_policies (Chính sách hủy)
-CREATE TABLE cancellation_policies (
-    policy_id INT IDENTITY(1,1) PRIMARY KEY,
-    policy_name VARCHAR(255) NOT NULL,
-    description NVARCHAR(MAX) NULL,
-    applicable_days INT NOT NULL,
-    policy_type VARCHAR(50) NOT NULL DEFAULT 'Refund'
-);
-GO
-
 -- Bảng shipping_addresses (Địa chỉ giao hàng)
 CREATE TABLE shipping_addresses (
     address_id INT IDENTITY(1,1) PRIMARY KEY,
