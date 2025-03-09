@@ -1,9 +1,4 @@
 ﻿-- Kiểm tra và tạo Database
-IF EXISTS (SELECT name FROM sys.databases WHERE name = N'DatabaseForTest')
-BEGIN
-    DROP DATABASE [DatabaseForTest];
-END
-GO
 
 CREATE DATABASE [DatabaseForTest];
 GO
