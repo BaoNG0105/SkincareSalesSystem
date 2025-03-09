@@ -154,19 +154,6 @@ CREATE TABLE carts (
 );
 GO
 
--- Bảng blogs (Bài viết)
-CREATE TABLE blogs (
-    blog_id INT IDENTITY(1,1) PRIMARY KEY,
-    title VARCHAR(255) NOT NULL,
-    content NVARCHAR(MAX) NOT NULL,
-    author_id BIGINT NOT NULL,
-    category VARCHAR(50) NULL,
-    view_count INT NOT NULL DEFAULT 0,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME NULL,
-    CONSTRAINT fk_blogs_author FOREIGN KEY (author_id) REFERENCES users(user_id)
-);
-GO
 
 -- Bảng faq (Câu hỏi thường gặp)
 CREATE TABLE faq (
