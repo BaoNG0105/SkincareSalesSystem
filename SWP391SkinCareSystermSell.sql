@@ -145,18 +145,6 @@ CREATE TABLE promotions (
 );
 GO
 
--- Bảng ratings_feedback (Đánh giá & phản hồi sản phẩm)
-CREATE TABLE ratings_feedback (
-    feedback_id INT IDENTITY(1,1) PRIMARY KEY,
-    customer_id BIGINT NOT NULL,
-    product_id INT NOT NULL,
-    rating INT NOT NULL,
-    comment NVARCHAR(MAX) NULL,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_ratings_feedback_customer FOREIGN KEY (customer_id) REFERENCES users(user_id),
-    CONSTRAINT fk_ratings_feedback_product FOREIGN KEY (product_id) REFERENCES products(product_id)
-);
-GO
 
 -- Bảng carts (Giỏ hàng)
 CREATE TABLE carts (
