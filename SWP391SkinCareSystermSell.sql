@@ -154,18 +154,6 @@ CREATE TABLE carts (
 );
 GO
 
--- Bảng cart_items (Chi tiết giỏ hàng)
-CREATE TABLE cart_items (
-    cart_item_id INT IDENTITY(1,1) PRIMARY KEY,
-    cart_id INT NOT NULL,
-    product_id INT NOT NULL,
-    quantity INT NOT NULL,
-    original_price DECIMAL(18,2) NOT NULL,
-    CONSTRAINT fk_cart_items_cart FOREIGN KEY (cart_id) REFERENCES carts(cart_id),
-    CONSTRAINT fk_cart_items_product FOREIGN KEY (product_id) REFERENCES products(product_id)
-);
-GO
-
 -- Bảng blogs (Bài viết)
 CREATE TABLE blogs (
     blog_id INT IDENTITY(1,1) PRIMARY KEY,
