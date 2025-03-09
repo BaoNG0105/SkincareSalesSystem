@@ -313,20 +313,6 @@ CREATE TABLE recommended_products (
 );
 GO
 
--- Bảng customer_points (Điểm thưởng khách hàng)
-CREATE TABLE customer_points (
-    point_id INT IDENTITY(1,1) PRIMARY KEY,
-    customer_id BIGINT NOT NULL,
-    points INT NOT NULL,
-    point_type VARCHAR(50) NOT NULL DEFAULT 'Earned',
-    order_id INT NULL,
-    earned_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    redeemed_date DATETIME NULL,
-    CONSTRAINT fk_customer_points_user FOREIGN KEY (customer_id) REFERENCES users(user_id),
-    CONSTRAINT fk_customer_points_order FOREIGN KEY (order_id) REFERENCES orders(order_id)
-);
-GO
-
 -- Bảng sales_reports: báo cáo doanh số tổng hợp theo khoảng thời gian
 CREATE TABLE sales_reports (
     report_id INT IDENTITY(1,1) PRIMARY KEY,
