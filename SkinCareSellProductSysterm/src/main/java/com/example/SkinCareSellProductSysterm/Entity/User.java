@@ -1,5 +1,6 @@
 package com.example.SkinCareSellProductSysterm.Entity;
 
+import com.example.SkinCareSellProductSysterm.utils.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
