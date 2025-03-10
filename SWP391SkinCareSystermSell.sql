@@ -252,16 +252,6 @@ CREATE TABLE product_attributes (
 );
 GO
 
--- Bảng product_images (Hình ảnh sản phẩm)
-CREATE TABLE product_images (
-    image_id INT IDENTITY(1,1) PRIMARY KEY,
-    product_id INT NOT NULL,
-    image_url NVARCHAR(MAX) NOT NULL,
-    is_main_image BIT NOT NULL DEFAULT 0,
-    CONSTRAINT fk_product_images_product FOREIGN KEY (product_id) REFERENCES products(product_id)
-);
-GO
-
 -- Bảng user_notifications (Thông báo người dùng)
 CREATE TABLE user_notifications (
     notification_id INT IDENTITY(1,1) PRIMARY KEY,
