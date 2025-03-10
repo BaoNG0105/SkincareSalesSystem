@@ -249,18 +249,6 @@ CREATE TABLE user_notifications (
 );
 GO
 
--- Bảng recommended_products (Gợi ý sản phẩm theo loại da)
-CREATE TABLE recommended_products (
-    recommendation_id INT IDENTITY(1,1) PRIMARY KEY,
-    skin_type_id INT NOT NULL,
-    product_id INT NOT NULL,
-    recommendation_reason VARCHAR(255) NULL,
-    CONSTRAINT uq_recommended_products UNIQUE (skin_type_id, product_id),
-    CONSTRAINT fk_recommended_products_skin_type FOREIGN KEY (skin_type_id) REFERENCES skin_types(skin_type_id),
-    CONSTRAINT fk_recommended_products_product FOREIGN KEY (product_id) REFERENCES products(product_id)
-);
-GO
-
 -- Bảng sales_reports: báo cáo doanh số tổng hợp theo khoảng thời gian
 CREATE TABLE sales_reports (
     report_id INT IDENTITY(1,1) PRIMARY KEY,
