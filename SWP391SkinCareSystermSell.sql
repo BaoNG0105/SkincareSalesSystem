@@ -200,21 +200,6 @@ CREATE TABLE test_results (
     CONSTRAINT fk_test_results_final_skin FOREIGN KEY (final_skin_type_id) REFERENCES skin_types(skin_type_id)
 );
 GO
-
--- Bảng delivery_details (Chi tiết giao hàng)
-CREATE TABLE delivery_details (
-    delivery_id INT IDENTITY(1,1) PRIMARY KEY,
-    order_id INT NOT NULL,
-    delivery_status VARCHAR(50) NOT NULL DEFAULT 'Pending',
-    courier_name VARCHAR(255) NULL,
-    tracking_number VARCHAR(255) NULL,
-    delivery_date DATETIME NULL,
-    estimated_delivery_date DATETIME NULL,
-    delivered_date DATETIME NULL,
-    CONSTRAINT fk_delivery_details_order FOREIGN KEY (order_id) REFERENCES orders(order_id)
-);
-GO
-
 -- Bảng promotion_applications (Áp dụng khuyến mãi)
 CREATE TABLE promotion_applications (
     application_id INT IDENTITY(1,1) PRIMARY KEY,
