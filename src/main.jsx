@@ -1,7 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
-import {createBrowserRouter, RouterProvider } from "react-router-dom"; 
+import {createBrowserRouter, RouterProvider,} from "react-router-dom"; 
 import Effect from './components/effect.jsx'; 
 
 import LoginPage from './pages/login/index.jsx';
@@ -17,6 +17,7 @@ import FaceMaskPage from './pages/product/faceMask/index.jsx';
 import MoisturizerPage from './pages/product/moisturizer/index.jsx';
 import SerumPage from './pages/product/serum/index.jsx';
 import SunScreenPage from './pages/product/sunScreen/index.jsx';
+import ProductDetail from './pages/product-detail/index.jsx';
 import FAQsPage from './pages/FAQs/index.jsx';
 import PrivacyPolicyPage from './pages/policies/privacy/index.jsx';
 import ReturnPolicyPage from './pages/policies/return/index.jsx';
@@ -227,6 +228,18 @@ const router = createBrowserRouter([
       ],
     },    
 
+    //Product Detail Page
+    {
+      path: "/product-detail/:id",
+      element: <MainLayout />,
+      children: [
+        {
+          path: "",
+          element: <ProductDetail />,
+        },
+      ],
+    },
+    
 ]);
 
 createRoot(document.getElementById('root')).render(

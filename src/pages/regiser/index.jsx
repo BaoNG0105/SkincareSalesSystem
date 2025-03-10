@@ -4,19 +4,19 @@ import { Link } from "react-router-dom"; //Import the Link
 import { FcGoogle } from "react-icons/fc"; //Import the Google icon
 import { signInWithPopup, GoogleAuthProvider } from "firebase/auth"; //Import the signInWithPopup and GoogleAuthProvider
 import { auth } from "../../config/firebase"; //Import the auth
+import api from "../../config/axios";
 
-//Register Page
 const RegisterPage = () => {
   const [formData, setFormData] = useState({
-    gender: "",
-    fullName: "",
-    phoneNumber: "",
-    address: "",
     email: "",
     password: "",
-    confirmPassword: "",
-    dob: "",
-    privacyPolicy: false
+    userName: "",
+    gender: "",
+    dateOfBirth: "",
+    address: "",
+    phoneNumber: "",
+    privacyPolicy: false,
+    confirmPassword: ""
   });
 
   //Show Password
@@ -116,10 +116,48 @@ const RegisterPage = () => {
   };
 
   //Handle Submit
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (Object.keys(errors).length === 0 && Object.values(formData).every(x => x !== "")) {
-      console.log("Form submitted:", formData);
+    
+    // Validate all required fields
+    const requiredFields = ['email', 'password', 'userName'];
+    const newErrors = {};
+    
+    requiredFields.forEach(field => {
+      if (!formData[field] || formData[field].trim() === '') {
+        newErrors[field] = `${field.charAt(0).toUpperCase() + field.slice(1)} is required`;
+      }
+    });
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    if (Object.keys(errors).length === 0) {
+      try {
+        // Remove confirmPassword and privacyPolicy and restructure data
+        const {password, ...otherData } = formData;
+        
+        // Create submitData with correct field names
+        const submitData = {
+          ...otherData,
+          passwordHash: password, // Rename password to passwordHash
+          profileImage: "" // Add default empty profileImage
+        };
+        
+        // Log the data being sent to check its structure
+        console.log("Sending data:", submitData);
+        
+        const response = await api.post('/auth/register', submitData);
+        console.log("Registration successful:", response.data);
+      } catch (error) {
+        console.error("Registration failed:", error.response?.data || error.message);
+        setErrors(prev => ({
+          ...prev,
+          submit: error.response?.data?.message || "Registration failed"
+        }));
+      }
     }
   };
 
@@ -165,19 +203,20 @@ const RegisterPage = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+
             {/* User Name Field */}
             <div>
-              <label className="block text-sm font-medium text-gray-700">User Name*</label>
+              <label className="block text-sm font-medium text-gray-700">Full Name*</label>
               <div className="mt-1">
                 <input
                   type="text"
-                  name="fullName"
-                  value={formData.fullName}
+                  name="userName"
+                  value={formData.userName}
                   onChange={handleChange}
                   className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-pink-500 focus:border-pink-500"
-                  placeholder="Enter your name"
+                  placeholder="Enter your full name"
                 />
-                {errors.fullName && <p className="mt-1 text-sm text-red-600">{errors.fullName}</p>}
+                {errors.userName && <p className="mt-1 text-sm text-red-600">{errors.userName}</p>}
               </div>
             </div>
 
@@ -187,8 +226,8 @@ const RegisterPage = () => {
               <div className="mt-1">
                 <input
                   type="date"
-                  name="dob"
-                  value={formData.dob}
+                  name="dateOfBirth"
+                  value={formData.dateOfBirth}
                   onChange={handleChange}
                   max={new Date().toISOString().split("T")[0]}
                   className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-pink-500 focus:border-pink-500"
