@@ -1,7 +1,8 @@
-# SkincareSalesSystem
+SKINCARE SELL PRODUCT SYSTEM
+
 SkinCare Sell Product System is a modern web application designed to streamline the management of skincare product sales. This system provides seamless integration between the frontend and backend, ensuring a smooth user experience for customers, administrators, and vendors.
 
-Technology Stack
+TECHNOLOGY STACK
 
 Frontend: React (Modern UI/UX for an intuitive shopping experience)
 
@@ -13,7 +14,7 @@ Authentication & Security: JWT Bearer Authentication
 
 API Documentation: Swagger (Using Springdoc OpenAPI for clear and structured API documentation)
 
-Key Features
+KEY FEATURES
 
 Product Management: Add, update, and categorize skincare products
 
