@@ -1,4 +1,4 @@
-DROP DATABASE IF EXISTS skincaresellproduct;
+-- Create Database (Tạo ra Database)
 CREATE DATABASE skincaresellproduct;
 USE skincaresellproduct;
 
