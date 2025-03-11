@@ -12,6 +12,7 @@ import LocationPage from './pages/location/index.jsx';
 import AboutPage from './pages/about/index.jsx';
 import ContactUs from './pages/contactUs/index.jsx';
 import MainLayout from './layout/MainLayout.jsx';
+import CategoryPage from './pages/category/index.jsx';
 import CleanserPage from './pages/product/cleanser/index.jsx';
 import FaceMaskPage from './pages/product/faceMask/index.jsx';
 import MoisturizerPage from './pages/product/moisturizer/index.jsx';
@@ -249,6 +250,18 @@ const router = createBrowserRouter([
         {
           path: "/promotion",
           element: <PromotionPage />,
+        },
+      ],
+    },  
+
+    //Category Page
+    {
+      path: "/category",
+      element: <MainLayout />,
+      children: [
+        {
+          path: "/category",
+          element: <CategoryPage />,
         },
       ],
     },  

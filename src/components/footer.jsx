@@ -26,7 +26,7 @@ function Footer() {
               <h4 className="font-semibold text-pink-800 mb-4">Resources</h4>
               <ul className="space-y-2">
                 <li><Link to="/about" className="text-gray-600 hover:text-pink-600">About Us</Link></li>
-                <li><Link to="/products" className="text-gray-600 hover:text-pink-600">Skin Care Library</Link></li>
+                <li><Link to="/category" className="text-gray-600 hover:text-pink-600">Skin Care Library</Link></li>
                 <li><Link to="/skin-test" className="text-gray-600 hover:text-pink-600">Skin Test</Link></li>
                 <li><Link to="/dashboard" className="text-gray-600 hover:text-pink-600">Dash board</Link></li>
               </ul>

@@ -76,7 +76,7 @@ const HomePage = () => {
                     Discover our collection of natural and organic skincare products
                   </p>
                   <Link 
-                    to="/products" 
+                    to="/category" 
                     className="inline-block bg-pink-600 text-white px-8 py-3 rounded-full hover:bg-pink-700 transition duration-300 shadow-lg hover:shadow-xl"
                   >
                     Shop Now
@@ -105,7 +105,7 @@ const HomePage = () => {
                     Get up to 30% off on selected skincare products
                   </p>
                   <Link 
-                    to="/special-offers" 
+                    to="/promotion" 
                     className="inline-block bg-pink-600 text-white px-8 py-3 rounded-full hover:bg-pink-700 transition duration-300 shadow-lg hover:shadow-xl"
                   >
                     View Offers
