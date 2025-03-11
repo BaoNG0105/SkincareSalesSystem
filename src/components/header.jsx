@@ -78,7 +78,7 @@ function Header() {
       <li><Link to="/cleanser" className="text-gray-700 hover:text-pink-600">CLEANSER</Link></li>
       <li><Link to="/sunscreen" className="text-gray-700 hover:text-pink-600">SUN SCREEN</Link></li>
       <li><Link to="/face-mask" className="text-gray-700 hover:text-pink-600">FACE MASK</Link></li>
-      <li><Link to="/special-offers" className="text-gray-700 hover:text-pink-600">SPECIAL OFFERS</Link></li>
+      <li><Link to="/promotion" className="text-gray-700 hover:text-pink-600">SPECIAL OFFERS</Link></li>
       <li><Link to="/skin-test" className="text-gray-700 hover:text-pink-600">SKIN TEST</Link></li>
       <li><Link to="/about" className="text-gray-700 hover:text-pink-600">ABOUT US</Link></li>
     </ul>

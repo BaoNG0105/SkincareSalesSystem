@@ -18,6 +18,7 @@ import MoisturizerPage from './pages/product/moisturizer/index.jsx';
 import SerumPage from './pages/product/serum/index.jsx';
 import SunScreenPage from './pages/product/sunScreen/index.jsx';
 import ProductDetail from './pages/product-detail/index.jsx';
+import PromotionPage from './pages/promotion/index.jsx';
 import FAQsPage from './pages/FAQs/index.jsx';
 import PrivacyPolicyPage from './pages/policies/privacy/index.jsx';
 import ReturnPolicyPage from './pages/policies/return/index.jsx';
@@ -239,7 +240,18 @@ const router = createBrowserRouter([
         },
       ],
     },
-    
+
+    //Promotion Page
+    {
+      path: "/promotion",
+      element: <MainLayout />,
+      children: [
+        {
+          path: "/promotion",
+          element: <PromotionPage />,
+        },
+      ],
+    },  
 ]);
 
 createRoot(document.getElementById('root')).render(
