@@ -1,24 +1,23 @@
-import { Link } from 'react-router-dom';
+
 
 const ContactUs = () => {
 
   return (
     <div className="min-h-screen bg-white">
+      {/* Hero Banner Section */}
+      <section className="relative bg-pink-50 py-16">
+        <div className="container mx-auto px-4">
+          <h1 className="text-4xl font-bold text-center text-pink-800 mb-6">
+            Contact Us & Support
+          </h1>
+          <p className="text-gray-600 text-center max-w-2xl mx-auto mb-12">
+            We are here to help you with any questions or concerns you may have
+          </p>
+        </div>
+      </section>
+      
       {/* Main Content */}
       <div className="container mx-auto px-4 py-12">
-      <div className="container mx-auto px-4">
-        <div className="mb-8 flex">
-          <nav className="flex" aria-label="Breadcrumb">
-            <ol className="flex items-center space-x-2">
-              <li><Link to="/" className="text-gray-600 hover:text-pink-600">Home</Link></li>
-              <li><span className="text-gray-400 mx-2">-</span></li>
-              <li className="text-gray-800">Contact Us</li>
-            </ol>
-          </nav>
-        </div>
-      </div>
-        <h1 className="text-3xl font-bold text-center text-pink-600 mb-12">Contact Us & Support</h1>
-
         {/* Contact Form */}
         <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-sm p-8 border border-pink-100">
           <h2 className="text-2xl font-semibold text-pink-800 mb-6">Send us a message</h2>

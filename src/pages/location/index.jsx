@@ -1,26 +1,22 @@
-import { Link } from 'react-router-dom';
 
 const LocationPage = () => {
   return (
     <div className="min-h-screen bg-white">
+      {/* Hero Banner Section */}
+      <section className="relative bg-pink-50 py-16">
+        <div className="container mx-auto px-4">
+          <h1 className="text-4xl font-bold text-center text-pink-800 mb-6">
+            Our SKINNE Store Locations
+          </h1>
+          <p className="text-gray-600 text-center max-w-2xl mx-auto mb-12">
+            Come visit our stores to experience the best skincare products and services
+          </p>
+        </div>
+      </section>
+
       {/* Store Locations Content */}
       <section className="py-12">
         <div className="container mx-auto px-4">
-          {/* Breadcrumb */}
-          <div className="mb-8">
-            <nav className="flex" aria-label="Breadcrumb">
-              <ol className="flex items-center space-x-2">
-                <li><Link to="/" className="text-gray-600 hover:text-pink-600">Home</Link></li>
-                <li><span className="text-gray-400 mx-2">-</span></li>
-                <li className="text-gray-800">Store Locations</li>
-              </ol>
-            </nav>
-          </div>
-
-          {/* Page Title */}
-          <h1 className="text-3xl font-bold text-center text-gray-800 mb-12">
-            Our SKINNE Store Locations
-          </h1>
 
           {/* City Sections */}
           <div className="space-y-12">

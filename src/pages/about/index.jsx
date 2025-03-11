@@ -1,22 +1,7 @@
-import { Link } from 'react-router-dom';
 
 const AboutPage = () => {
   return (
     <div className="min-h-screen bg-white">
-      {/* About Us Content */}
-      <main className="py-16">
-      {/* Breadcrumb */}
-      <div className="container mx-auto px-4">
-        <div className="mb-8 flex">
-          <nav className="flex" aria-label="Breadcrumb">
-            <ol className="flex items-center space-x-2">
-              <li><Link to="/" className="text-gray-600 hover:text-pink-600">Home</Link></li>
-              <li><span className="text-gray-400 mx-2">-</span></li>
-              <li className="text-gray-800">About Us</li>
-            </ol>
-          </nav>
-        </div>
-      </div>
         {/* Hero Section */}
         <section className="relative h-[400px] mb-16">
           <div 
@@ -104,7 +89,6 @@ const AboutPage = () => {
             </div>
           </div>
         </section>
-      </main>
     </div>
   );
 };

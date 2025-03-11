@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 
 function FAQsPage() {
   const faqs = {
@@ -90,20 +89,23 @@ function FAQsPage() {
   };
 
   return (
-    <div className="p-8">
-    <div className="mb-8 flex">
-          <nav className="flex" aria-label="Breadcrumb">
-            <ol className="flex items-center space-x-2">
-              <li><Link to="/" className="text-gray-600 hover:text-pink-600">Home</Link></li>
-              <li><span className="text-gray-400 mx-2">-</span></li>
-              <li className="text-gray-800">FAQs</li>
-            </ol>
-          </nav>
+    <div className="min-h-screen bg-white">
+      {/* Hero Banner Section */}
+      <section className="relative bg-pink-50 py-16">
+        <div className="container mx-auto px-4">
+          <h1 className="text-4xl font-bold text-center text-pink-800 mb-6">
+            FAQs
+          </h1>
+          <p className="text-gray-600 text-center max-w-2xl mx-auto mb-12">
+            Find answers to common questions and concerns about our skincare products and services
+          </p>
         </div>
-      <h1 className="text-center text-3xl font-bold mb-4 text-pink-600">FAQs</h1>
+      </section>
+      
+      <div className="container mx-auto px-4 py-12">
       {Object.keys(faqs).map((category) => (
         <div key={category} className="mb-4">
-          <h2 className="text-xl font-semibold mb-3 text-pink-400">{category}</h2> {/* category */}
+          <h2 className="text-xl font-semibold mb-3 text-pink-800">{category}</h2> {/* category */}
           {faqs[category].map((faq, index) => (
             <div key={index} className="mb-2">
               <button 
@@ -121,6 +123,7 @@ function FAQsPage() {
           ))}
         </div>
       ))}
+    </div>
     </div>
   );
 }
