@@ -25,6 +25,12 @@ import PrivacyPolicyPage from './pages/policies/privacy/index.jsx';
 import ReturnPolicyPage from './pages/policies/return/index.jsx';
 import ShippingPolicyPage from './pages/policies/shipping/index.jsx';
 import TermsConditionsPage from './pages/policies/terms-conditions/index.jsx';
+import Dashboard from './pages/dashboard/dashboardTemplate/index.jsx';
+import ProductPage from './pages/dashboard/product/index.jsx';
+import StaffPage from './pages/dashboard/staff/index.jsx';
+import OrderPage from './pages/dashboard/order/index.jsx';
+import CustomerPage from './pages/dashboard/customer/index.jsx';
+import BlogPage from './pages/blog/index.jsx';
 
 //Single Page Application
 //Client side rendering
@@ -265,6 +271,55 @@ const router = createBrowserRouter([
         },
       ],
     },  
+    //Trang tổng quan sản phẩm
+{
+  path: "/dashboard",
+  element: <Dashboard />,
+  children: [
+    {
+      path: "/dashboard/product",
+      element: <ProductPage />,
+    }
+  ]
+},
+
+//Trang nhân viên
+{
+  path: "/dashboard",
+  element: <Dashboard />,
+  children: [
+    {
+      path: "/dashboard/staff",
+      element: <StaffPage />,
+    }
+  ]
+},
+//trang order
+{
+  path: "/dashboard",
+  element: <Dashboard />,
+  children: [
+    {
+      path: "/dashboard/order",
+      element: <OrderPage />,
+    }
+  ]
+},
+//trang customera
+{
+  path: "/dashboard",
+  element: <Dashboard />,
+  children: [
+    {
+      path: "/dashboard/customer",
+      element: <CustomerPage />,
+    }
+  ]
+},
+{
+  path: "/blog",
+  element: <BlogPage/>,
+},
 ]);
 
 createRoot(document.getElementById('root')).render(
