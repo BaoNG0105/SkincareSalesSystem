@@ -1,33 +1,16 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { getPromotion } from '../../services/api.promotion';
 
 const PromotionPage = () => {
   const [promotions, setPromotions] = useState([]);
   
   useEffect(() => {
-    // TODO: Fetch promotions from API
-    // Temporary mock data
-    setPromotions([
-      {
-        id: 1,
-        title: "Summer Sale",
-        description: "Get 30% off on all sunscreen products",
-        image: "https://images.unsplash.com/photo-1556228578-8c89e6adf883",
-        validUntil: "2024-06-30",
-        discount: "30%",
-        code: "SUMMER30"
-      },
-      {
-        id: 2,
-        title: "New Customer Special",
-        description: "15% off on your first purchase",
-        image: "https://images.unsplash.com/photo-1571875257727-256c39da42af",
-        validUntil: "2024-12-31",
-        discount: "15%",
-        code: "WELCOME15"
-      },
-      // Add more mock promotions as needed
-    ]);
+    const fetchPromotions = async () => {
+      const data = await getPromotion();
+      setPromotions(data);
+    };
+    fetchPromotions();
   }, []);
 
   return (
@@ -48,29 +31,24 @@ const PromotionPage = () => {
       </section>
 
       {/* Promotions Grid */}
-      <section className="py-16">
+      <section className="py-8">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {promotions.map((promo) => (
               <div 
-                key={promo.id}
-                className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition duration-300"
+                key={promo.promotionId}
+                className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition duration-300 flex flex-col"
               >
-                <div className="relative h-48">
-                  <img 
-                    src={promo.image} 
-                    alt={promo.title}
-                    className="w-full h-full object-cover"
-                  />
+                <div className="relative flex-grow">
                   <div className="absolute top-4 right-4 bg-pink-600 text-white px-4 py-2 rounded-full">
-                    {promo.discount} OFF
+                    {promo.discountPercentage}% OFF
                   </div>
                 </div>
-                <div className="p-6">
+                <div className="p-4 flex-grow">
                   <h3 className="text-xl font-bold text-gray-800 mb-2">
-                    {promo.title}
+                    {promo.code}
                   </h3>
-                  <p className="text-gray-600 mb-4">
+                  <p className="text-gray-600 mb-4 line-clamp-3">
                     {promo.description}
                   </p>
                   <div className="flex items-center justify-between">
@@ -78,7 +56,7 @@ const PromotionPage = () => {
                       <span className="text-pink-800 font-semibold">Code: {promo.code}</span>
                     </div>
                     <div className="text-sm text-gray-500">
-                      Valid until {new Date(promo.validUntil).toLocaleDateString()}
+                      Valid until {new Date(promo.endDate).toLocaleDateString()}
                     </div>
                   </div>
                   <Link 
