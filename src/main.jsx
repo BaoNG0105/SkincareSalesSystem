@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import "./index.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Effect from "./components/effect.jsx";
+import { ToastContainer } from "react-toastify";
 
 import LoginPage from "./pages/login/index.jsx";
 import RegisterPage from "./pages/regiser/index.jsx";
@@ -317,12 +318,12 @@ const router = createBrowserRouter([
       },
     ],
   },
-
 ]);
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <Effect /> {/* Thêm Effect Hoa đào rơi */}
     <RouterProvider router={router} /> {/* Router các pages */}
+    <ToastContainer />
   </StrictMode>
 );

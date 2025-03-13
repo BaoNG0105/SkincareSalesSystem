@@ -1,9 +1,11 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { auth } from "../../config/firebase";
+import { postLogin } from "../../services/api.login";
+import { toast } from "react-toastify";
 
 function LoginPage() {
   const [formData, setFormData] = useState({
@@ -14,18 +16,20 @@ function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
 
+  const navigate = useNavigate();
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
     validateField(name, value);
   };
 
   const validateField = (name, value) => {
     let newErrors = { ...errors };
-    
+
     switch (name) {
       case "email": {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -34,7 +38,7 @@ function LoginPage() {
         } else {
           delete newErrors.email;
         }
-        break; 
+        break;
       }
       case "password":
         if (value.length < 8) {
@@ -50,11 +54,28 @@ function LoginPage() {
     setErrors(newErrors);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (Object.keys(errors).length === 0 && Object.values(formData).every(x => x !== "")) {
-      console.log("Form submitted:", formData);
-      // TODO: Add your login logic here
+    if (
+      Object.keys(errors).length === 0 &&
+      Object.values(formData).every((x) => x !== "")
+    ) {
+      console.log("Submitting login with:", formData);
+      try {
+        const data = await postLogin(formData);
+        console.log("Login response:", data);
+        if (data) {
+          toast.success("Login successful!");
+          navigate("/");
+        } else {
+          toast.error("Login failed: Invalid credentials.");
+        }
+      } catch (error) {
+        console.error("Login failed:", error);
+        toast.error(
+          "Login failed: " + (error.response?.data || "Unknown error")
+        );
+      }
     }
   };
 
@@ -74,25 +95,38 @@ function LoginPage() {
     <div className="min-h-screen flex">
       {/* Left side - Image */}
       <div className="hidden lg:flex lg:w-1/2">
-        <div className="w-full bg-cover bg-center bg-no-repeat" 
-            style={{ backgroundImage: "url('https://images.unsplash.com/photo-1612817288484-6f916006741a?ixlib=rb-4.0.3')" }}>
-          <div className="w-full h-full bg-opacity-20 flex items-center justify-center">
-          </div>
+        <div
+          className="w-full bg-cover bg-center bg-no-repeat"
+          style={{
+            backgroundImage:
+              "url('https://images.unsplash.com/photo-1612817288484-6f916006741a?ixlib=rb-4.0.3')",
+          }}
+        >
+          <div className="w-full h-full bg-opacity-20 flex items-center justify-center"></div>
         </div>
       </div>
 
       {/* Right side - Login Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8"> {/*căn chỉnh form nằm giữa*/}
-        <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-5 border border-pink-200"> {/*tạo khung form*/}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
+        {" "}
+        {/*căn chỉnh form nằm giữa*/}
+        <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-5 border border-pink-200">
+          {" "}
+          {/*tạo khung form*/}
           <div className="text-center">
-            <h2 className="text-3xl font-bold text-pink-600">Sign in to your account</h2>
-            <p className="mt-2 text-gray-600">Welcome to SKINNE - World of Skincare</p>
+            <h2 className="text-3xl font-bold text-pink-600">
+              Sign in to your account
+            </h2>
+            <p className="mt-2 text-gray-600">
+              Welcome to SKINNE - World of Skincare
+            </p>
           </div>
-
           <form onSubmit={handleSubmit} className="mt-8 space-y-6">
             {/* Email Field */}
             <div>
-              <label className="block text-sm font-medium text-gray-700">Email</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Email
+              </label>
               <div className="mt-1">
                 <input
                   type="email"
@@ -102,13 +136,17 @@ function LoginPage() {
                   className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-pink-500 focus:border-pink-500"
                   placeholder="your.email@example.com"
                 />
-                {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
+                {errors.email && (
+                  <p className="mt-1 text-sm text-red-600">{errors.email}</p>
+                )}
               </div>
             </div>
 
             {/* Password Field */}
             <div>
-              <label className="block text-sm font-medium text-gray-700">Password</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Password
+              </label>
               <div className="mt-1 relative">
                 <input
                   type={showPassword ? "text" : "password"}
@@ -123,9 +161,15 @@ function LoginPage() {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute inset-y-0 right-0 pr-3 flex items-center"
                 >
-                  {showPassword ? <FaEyeSlash className="text-gray-400" /> : <FaEye className="text-gray-400" />}
+                  {showPassword ? (
+                    <FaEyeSlash className="text-gray-400" />
+                  ) : (
+                    <FaEye className="text-gray-400" />
+                  )}
                 </button>
-                {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password}</p>}
+                {errors.password && (
+                  <p className="mt-1 text-sm text-red-600">{errors.password}</p>
+                )}
               </div>
             </div>
 
@@ -136,10 +180,15 @@ function LoginPage() {
                   type="checkbox"
                   className="h-4 w-4 text-pink-600 focus:ring-pink-500 border-gray-300 rounded"
                 />
-                <label className="ml-2 block text-sm text-gray-700">Remember me</label>
+                <label className="ml-2 block text-sm text-gray-700">
+                  Remember me
+                </label>
               </div>
               <div className="text-sm">
-                <a href="#" className="font-medium text-pink-600 hover:text-pink-500">
+                <a
+                  href="#"
+                  className="font-medium text-pink-600 hover:text-pink-500"
+                >
                   Forgot your password?
                 </a>
               </div>
@@ -176,7 +225,10 @@ function LoginPage() {
             {/* Register Link */}
             <div className="text-center">
               <span className="text-gray-600">Do not have an account? </span>
-              <Link to="/register" className="text-pink-600 hover:text-pink-500 font-medium">
+              <Link
+                to="/register"
+                className="text-pink-600 hover:text-pink-500 font-medium"
+              >
                 Create one
               </Link>
             </div>
@@ -188,5 +240,3 @@ function LoginPage() {
 }
 
 export default LoginPage;
-
-
