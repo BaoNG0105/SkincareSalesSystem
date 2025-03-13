@@ -1,4 +1,8 @@
 package com.example.SkinCareSellProductSysterm.Utils;
 
-public class OrderStatus {
+public enum OrderStatus {
+    PENDING,
+    SHIPPED,
+    DELIVERED,
+    CANCELED
 }
