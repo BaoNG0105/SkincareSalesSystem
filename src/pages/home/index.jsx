@@ -1,14 +1,15 @@
-import { Link } from "react-router-dom"; // import Link
+import { Link } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react"; // import Swiper
-import { Autoplay, Pagination, Navigation } from "swiper/modules"; // import Modules
+import { Autoplay, Pagination, Navigation } from "swiper/modules"; // import Modules của swiper
 import "swiper/css"; // import CSS
 import "swiper/css/pagination"; // import Pagination
 import "swiper/css/navigation"; // import Navigation
+import ProductSection from "../../components/home-sections";
 
 const HomePage = () => {
   return (
     <div className="min-h-screen bg-white">
-      {/* Hero Banner */}
+      {/* Hero Banner Section */}
       <section className="relative h-[550px]">
         <Swiper
           spaceBetween={0}
@@ -150,18 +151,20 @@ const HomePage = () => {
         </Swiper>
       </section>
 
-      {/* Best Sellers Section */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center text-gray-800 mb-12">
-            Best Sellers
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            {/* Product Cards */}
-            {/* Add your product components here */}
-          </div>
-        </div>
-      </section>
+      {/* Cleanser Section */}
+      <ProductSection category="cleanser" />
+
+      {/* Serum Section */}
+      <ProductSection category="serum" />
+
+      {/* Face Mask Section */}
+      <ProductSection category="facemask" />
+
+      {/* Moisturizer Section */}
+      <ProductSection category="moisturizer" />
+
+      {/* Sunscreen Section */}
+      <ProductSection category="sunscreen" />
 
       {/* Features Section */}
       <section className="bg-pink-50 py-16">
