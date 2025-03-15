@@ -12,7 +12,7 @@ const FaceMaskPage = () => {
       >
         <div className="absolute inset-0 bg-black/35"></div>
         <div className="relative z-10">
-          <h1 className="text-4xl font-extrabold text-center text-white pt-32">
+          <h1 className="text-5xl font-extrabold text-center text-white pt-32">
             Face Mask Collection
           </h1>
         </div>

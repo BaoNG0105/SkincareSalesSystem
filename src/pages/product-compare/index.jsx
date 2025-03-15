@@ -1,9 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Table, Button, Card, Typography, Tag, Empty } from "antd";
-import { ArrowLeftOutlined, DeleteOutlined } from "@ant-design/icons";
-
-const { Title } = Typography;
+import { FaArrowLeft, FaTrash } from "react-icons/fa";
 
 const ProductComparePage = () => {
   const navigate = useNavigate();
@@ -26,142 +23,122 @@ const ProductComparePage = () => {
 
   if (compareProducts.length === 0) {
     return (
-      <div
-        style={{
-          minHeight: "60vh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <Empty
-          description={
-            <Title level={3} style={{ color: "#C91F50" }}>
-              There are no products to compare
-            </Title>
-          }
-        >
-          <Button
-            type="primary"
-            icon={<ArrowLeftOutlined />}
-            size="large"
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <div className="text-center">
+          <h3 className="text-2xl font-bold text-pink-600 mb-4">
+            There are no products to compare
+          </h3>
+          <button
+            className="inline-flex items-center justify-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
             onClick={() => navigate("/")}
           >
-            Back to shopping
-          </Button>
-        </Empty>
+            <FaArrowLeft className="text-lg" />
+            <span>Back to shopping</span>
+          </button>
+        </div>
       </div>
     );
   }
 
-  const columns = [
-    {
-      title: "Product Details",
-      dataIndex: "feature",
-      key: "feature",
-      width: "20%",
-      render: (text) => <Typography.Text strong>{text}</Typography.Text>,
-    },
-    ...compareProducts.map((product) => ({
-      title: (
-        <Card
-          bordered={false}
-          style={{ textAlign: "center" }}
-          bodyStyle={{ padding: 12 }}
-        >
-          <div style={{ marginBottom: 16 }}>
-            <img
-              src={product.image}
-              alt={product.productName}
-              style={{
-                width: 200,
-                height: 200,
-                objectFit: "contain",
-              }}
-            />
-          </div>
-          <Typography.Title level={5} ellipsis={{ rows: 2 }}>
-            {product.productName}
-          </Typography.Title>
-          <Typography.Text type="danger" strong style={{ fontSize: 18 }}>
-            {product.price.toLocaleString()} VND
-          </Typography.Text>
-          <div style={{ marginTop: 12 }}>
-            <Button
-              danger
-              icon={<DeleteOutlined />}
-              onClick={() => removeProduct(product.productId)}
-            >
-              Remove
-            </Button>
-          </div>
-        </Card>
-      ),
-      dataIndex: product.productId,
-      key: product.productId,
-      width: `${80 / compareProducts.length}%`,
-    })),
-  ];
-
-  const data = [
-    {
-      key: "description",
-      feature: "Description",
-      ...compareProducts.reduce(
-        (acc, product) => ({
-          ...acc,
-          [product.productId]: (
-            <Typography.Paragraph ellipsis={{ rows: 4 }}>
-              {product.description}
-            </Typography.Paragraph>
-          ),
-        }),
-        {}
-      ),
-    },
-    {
-      key: "status",
-      feature: "Status",
-      ...compareProducts.reduce(
-        (acc, product) => ({
-          ...acc,
-          [product.productId]: (
-            <Tag color={product.status ? "success" : "error"}>
-              {product.status ? "In Stock" : "Out of Stock"}
-            </Tag>
-          ),
-        }),
-        {}
-      ),
-    },
-    {
-      key: "stockQuantity",
-      feature: "Stock Quantity",
-      ...compareProducts.reduce(
-        (acc, product) => ({
-          ...acc,
-          [product.productId]: (
-            <Tag color="processing">{product.stockQuantity} products</Tag>
-          ),
-        }),
-        {}
-      ),
-    },
-  ];
-
   return (
-    <div style={{ padding: 24 }}>
-      <Title level={2} style={{ textAlign: "center", marginBottom: 24 }}>
+    <div className="p-6">
+      <h2 className="text-3xl font-bold text-center mb-8">
         Product Comparison
-      </Title>
+      </h2>
 
-      <Table
-        columns={columns}
-        dataSource={data}
-        pagination={false}
-        bordered
-        scroll={{ x: true }}
-      />
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse border border-gray-200">
+          <thead>
+            <tr>
+              <th className="w-1/5 border border-gray-200 bg-gray-50 p-4">
+                Product Details
+              </th>
+              {compareProducts.map((product) => (
+                <th
+                  key={product.productId}
+                  className={`w-[${
+                    80 / compareProducts.length
+                  }%] border border-gray-200 p-4`}
+                >
+                  <div className="text-center">
+                    <div className="mb-4">
+                      <img
+                        src={product.image}
+                        alt={product.productName}
+                        className="w-48 h-48 object-contain mx-auto"
+                      />
+                    </div>
+                    <h5 className="text-lg font-semibold line-clamp-2 mb-2">
+                      {product.productName}
+                    </h5>
+                    <p className="text-xl font-bold text-red-600 mb-3">
+                      {product.price.toLocaleString()} VND
+                    </p>
+                    <button
+                      onClick={() => removeProduct(product.productId)}
+                      className="flex items-center gap-2 mx-auto px-4 py-2 text-red-600 border border-red-600 rounded hover:bg-red-50 transition-colors"
+                    >
+                      <FaTrash />
+                      Remove
+                    </button>
+                  </div>
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td className="border border-gray-200 p-4 font-semibold">
+                Description
+              </td>
+              {compareProducts.map((product) => (
+                <td
+                  key={product.productId}
+                  className="border border-gray-200 p-4"
+                >
+                  <p className="line-clamp-4">{product.description}</p>
+                </td>
+              ))}
+            </tr>
+            <tr>
+              <td className="border border-gray-200 p-4 font-semibold">
+                Status
+              </td>
+              {compareProducts.map((product) => (
+                <td
+                  key={product.productId}
+                  className="border border-gray-200 p-4"
+                >
+                  <span
+                    className={`inline-block px-3 py-1 rounded-full text-sm ${
+                      product.status
+                        ? "bg-green-100 text-green-800"
+                        : "bg-red-100 text-red-800"
+                    }`}
+                  >
+                    {product.status ? "In Stock" : "Out of Stock"}
+                  </span>
+                </td>
+              ))}
+            </tr>
+            <tr>
+              <td className="border border-gray-200 p-4 font-semibold">
+                Stock Quantity
+              </td>
+              {compareProducts.map((product) => (
+                <td
+                  key={product.productId}
+                  className="border border-gray-200 p-4"
+                >
+                  <span className="inline-block px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
+                    {product.stockQuantity} products
+                  </span>
+                </td>
+              ))}
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

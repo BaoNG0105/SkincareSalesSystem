@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import api from "../config/axios";
 import PropTypes from "prop-types";
+import { FaShoppingCart, FaMoneyBillWave } from "react-icons/fa";
 
 const ProductSection = ({ category }) => {
   const [products, setProducts] = useState([]);
@@ -50,97 +51,67 @@ const ProductSection = ({ category }) => {
     <div className="min-h-screen bg-white">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          {/* Product Cards */}
           {currentProducts.map((product) => (
             <div
               key={product.productId}
-              className="bg-white rounded-lg p-6 hover:shadow-lg transition-shadow duration-300"
+              className="bg-white rounded-lg p-6 shadow-md hover:shadow-xl border border-gray-100 transition-all duration-300 transform hover:-translate-y-1"
               onClick={() => {
-                console.log("Clicked product:", product);
                 window.location.href = `/product-detail/${product.productId}`;
               }}
             >
-              {/* Product Image */}
-              <div className="relative mb-4 flex justify-center">
+              <div className="relative mb-4 flex justify-center group">
                 <img
                   src={product.image}
                   alt={product.productName}
-                  className="h-48 object-contain"
+                  className="h-48 object-contain transition-transform duration-300 group-hover:scale-110"
                 />
                 {product.status === "out_of_stock" && (
-                  <div className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded-md text-sm">
+                  <div className="absolute top-2 right-2 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-medium shadow-sm">
                     Out of Stock
                   </div>
                 )}
               </div>
 
-              {/* Product Info */}
               <div className="space-y-3">
-                {/* Product Name */}
-                <h3 className="text-gray-800 font-medium text-lg leading-tight min-h-[50px]">
+                <h3 className="text-gray-800 font-semibold text-lg leading-tight min-h-[50px] mb-2">
                   {product.productName}
                 </h3>
 
-                {/* Price */}
-                <div className="text-xl font-bold text-[#C91F50]">
+                <div className="text-xl font-bold text-[#C91F50] mb-2">
                   {product.price.toLocaleString()}đ
                 </div>
 
-                {/* Buttons */}
-                <div className="space-y-2">
-                  {/* Add to Cart Button */}
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="text-sm text-gray-600">Available:</span>
+                  <span className="px-2 py-1 rounded text-sm bg-blue-100 text-blue-800">
+                    {product.stockQuantity} items
+                  </span>
+                </div>
+
+                <div className="space-y-3">
                   <button
-                    className="w-full bg-white border-2 border-[#C91F50] text-[#C91F50] py-2 rounded-md font-medium hover:bg-[#C91F50] hover:text-white transition-colors duration-300 flex items-center justify-center gap-2"
-                    onClick={() => {
+                    className="w-full py-2.5 px-4 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-800 flex items-center justify-center gap-2 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={product.status === "out_of_stock"}
+                    onClick={(e) => {
+                      e.stopPropagation();
                       // Add your cart logic here
                     }}
                   >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
-                      />
-                    </svg>
+                    <FaShoppingCart className="w-5 h-5" />
                     Add to Cart
                   </button>
 
-                  {/* Buy Now Button */}
                   <button
-                    className="w-full bg-[#C91F50] text-white py-2 rounded-md font-medium hover:bg-[#A41841] transition-colors duration-300"
-                    onClick={() => {
-                      // Add your checkout logic here
+                    className="w-full bg-[#C91F50] text-white py-2.5 px-4 rounded-lg font-medium hover:bg-[#A41841] transition-colors duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={product.status === "out_of_stock"}
+                    onClick={(e) => {
+                      e.stopPropagation();
                       window.location.href = "/checkout";
                     }}
                   >
+                    <FaMoneyBillWave className="w-5 h-5" />
                     Buy Now
                   </button>
-                </div>
-
-                {/* Additional Info (hidden by default) */}
-                <div className="hidden">
-                  <p className="text-gray-600 text-sm">{product.description}</p>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-500">
-                      Stock: {product.stock_quantity}
-                    </span>
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs ${
-                        product.status === "active"
-                          ? "bg-green-100 text-green-800"
-                          : "bg-gray-100 text-gray-800"
-                      }`}
-                    >
-                      {product.status}
-                    </span>
-                  </div>
                 </div>
               </div>
             </div>

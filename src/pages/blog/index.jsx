@@ -32,10 +32,10 @@ function BlogPage() {
       const userId = decodedToken.id; // Lấy id của user từ token
 
       const formData = {
-        title: post.title, 
-        content: post.content, 
+        title: post.title,
+        content: post.content,
         userId: userId, // Lấy userId từ token
-        category: post.category, 
+        category: post.category,
       };
 
       await postBlog(formData); // Gửi formData đến backend
@@ -51,15 +51,18 @@ function BlogPage() {
   return (
     <div className="bg-white min-h-screen">
       {/* Hero Banner Section */}
-      <section className="relative bg-pink-50 py-16">
-        <div className="container mx-auto px-4">
-          <h1 className="text-4xl font-bold text-center text-pink-800 mb-6">
-            Blogs
-          </h1>
-          <p className="text-gray-600 text-center max-w-2xl mx-auto mb-12">
-            Read our latest blog posts and stay updated on the latest skincare
-            trends and tips
-          </p>
+      <section className="relative h-[400px] bg-gradient-to-br from-pink-100 via-pink-50 to-white">
+        <div className="absolute inset-0 bg-pattern opacity-10"></div>
+        <div className="relative container mx-auto px-4 h-full flex items-center justify-center">
+          <div className="text-center space-y-6">
+            <h1 className="text-5xl font-extrabold text-pink-800 mb-4 tracking-tight">
+              Blogs
+            </h1>
+            <p className="text-gray-600 text-xl max-w-2xl mx-auto leading-relaxed">
+              Read our latest blog posts and stay updated on the latest skincare
+              trends and tips
+            </p>
+          </div>
         </div>
       </section>
 

@@ -2,25 +2,8 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getProductById, getRelatedProducts } from "../../services/api.product";
 import { toast } from "react-toastify";
-import {
-  Row,
-  Col,
-  Typography,
-  Tag,
-  Button,
-  Card,
-  Spin,
-  Result,
-  Space,
-  Divider,
-} from "antd";
-import {
-  ShoppingCartOutlined,
-  DollarOutlined,
-  SwapOutlined,
-} from "@ant-design/icons";
-
-const { Title, Text, Paragraph } = Typography;
+import { FaExchangeAlt, FaShoppingCart, FaMoneyBillWave } from "react-icons/fa";
+import { MdCompare } from "react-icons/md";
 
 const ProductDetailPage = () => {
   const { id } = useParams();
@@ -78,201 +61,170 @@ const ProductDetailPage = () => {
 
   if (loading)
     return (
-      <div
-        style={{
-          minHeight: "60vh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <Spin size="large" />
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
       </div>
     );
 
   if (error)
     return (
-      <Result
-        status="error"
-        title="Error"
-        subTitle={error}
-        extra={[
-          <Button type="primary" key="back" onClick={() => navigate("/")}>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h3 className="text-2xl font-bold text-red-600 mb-4">Error</h3>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <button
+            onClick={() => navigate("/")}
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
             Back to Home
-          </Button>,
-        ]}
-      />
+          </button>
+        </div>
+      </div>
     );
 
   if (!product)
     return (
-      <Result
-        status="404"
-        title="Product not found"
-        extra={[
-          <Button type="primary" key="back" onClick={() => navigate("/")}>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h3 className="text-2xl font-bold text-gray-800 mb-4">
+            Product not found
+          </h3>
+          <button
+            onClick={() => navigate("/")}
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
             Back to Home
-          </Button>,
-        ]}
-      />
+          </button>
+        </div>
+      </div>
     );
 
   return (
-    <div style={{ padding: "24px", background: "#f5f5f5", minHeight: "100vh" }}>
-      <Row gutter={[24, 24]} justify="center">
-        <Col xs={24} md={12}>
-          <Card>
-            <div className="group relative" style={{ height: 450 }}>
-              <img
-                src={product.image}
-                alt={product.productName}
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "contain",
-                  transition: "transform 0.3s ease",
-                }}
-                className="hover:scale-150"
-              />
-              <Tag
-                style={{
-                  position: "absolute",
-                  bottom: 16,
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  opacity: 0.8,
-                }}
-              >
-                Hover to zoom
-              </Tag>
+    <div className="bg-gray-100 min-h-screen p-6">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Product Image */}
+        <div className="bg-white rounded-lg shadow-md p-4">
+          <div className="relative h-[450px] group">
+            <img
+              src={product.image}
+              alt={product.productName}
+              className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-150"
+            />
+          </div>
+        </div>
+
+        {/* Product Info */}
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="space-y-6">
+            <h1 className="text-3xl font-bold">{product.productName}</h1>
+            <p className="text-2xl font-bold text-red-600">
+              {product.price.toLocaleString()} VND
+            </p>
+
+            <hr className="border-gray-200" />
+
+            <div>
+              <h2 className="text-xl font-semibold mb-2">Description</h2>
+              <p className="text-gray-600">{product.description}</p>
             </div>
-          </Card>
-        </Col>
 
-        <Col xs={24} md={12}>
-          <Card>
-            <Space direction="vertical" size="large" style={{ width: "100%" }}>
-              <Title level={2}>{product.productName}</Title>
-
-              <Title level={3} type="danger">
-                {product.price.toLocaleString()} VND
-              </Title>
-
-              <Divider />
-
-              <div>
-                <Title level={4}>Description</Title>
-                <Paragraph>{product.description}</Paragraph>
-              </div>
-
-              <Space>
-                <Text>Status:</Text>
-                <Tag color={product.status ? "success" : "error"}>
-                  {product.status ? "In Stock" : "Out of Stock"}
-                </Tag>
-              </Space>
-
-              <Space>
-                <Text>Available:</Text>
-                <Tag color="processing">{product.stockQuantity} items</Tag>
-              </Space>
-
-              <Space
-                direction="vertical"
-                size="middle"
-                style={{ width: "100%" }}
+            <div className="flex items-center gap-2">
+              <span>Status:</span>
+              <span
+                className={`px-2 py-1 rounded text-sm ${
+                  product.status
+                    ? "bg-green-100 text-green-800"
+                    : "bg-red-100 text-red-800"
+                }`}
               >
-                <Button
-                  icon={<SwapOutlined />}
-                  type={
-                    compareProducts.some(
-                      (p) => p.productId === product.productId
-                    )
-                      ? "primary"
-                      : "default"
-                  }
-                  block
-                  onClick={() => handleCompareToggle(product)}
+                {product.status ? "In Stock" : "Out of Stock"}
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span>Available:</span>
+              <span className="px-2 py-1 rounded text-sm bg-blue-100 text-blue-800">
+                {product.stockQuantity} items
+              </span>
+            </div>
+
+            <div className="space-y-3">
+              <button
+                onClick={() => handleCompareToggle(product)}
+                className={`w-full py-2.5 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors duration-200 ${
+                  compareProducts.some((p) => p.productId === product.productId)
+                    ? "bg-blue-600 hover:bg-blue-700 text-white"
+                    : "bg-gray-300 hover:bg-gray-400 text-gray-800"
+                }`}
+              >
+                <MdCompare className="w-5 h-5" />
+                {compareProducts.some((p) => p.productId === product.productId)
+                  ? "Added to compare"
+                  : "Add to compare"}
+              </button>
+
+              {compareProducts.length > 0 && (
+                <button
+                  onClick={() => navigate("/product-compare")}
+                  className="w-full py-2.5 px-4 rounded-lg bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center gap-2 transition-colors duration-200"
                 >
-                  {compareProducts.some(
-                    (p) => p.productId === product.productId
-                  )
-                    ? "Added to compare"
-                    : "Add to compare"}
-                </Button>
+                  <FaExchangeAlt className="w-5 h-5" />
+                  Compare ({compareProducts.length} products)
+                </button>
+              )}
 
-                {compareProducts.length > 0 && (
-                  <Button
-                    icon={<SwapOutlined />}
-                    type="primary"
-                    block
-                    onClick={() => navigate("/product-compare")}
-                  >
-                    Compare ({compareProducts.length} products)
-                  </Button>
-                )}
+              <button
+                disabled={!product.status}
+                className="w-full py-2.5 px-4 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-800 flex items-center justify-center gap-2 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <FaShoppingCart className="w-5 h-5" />
+                Add to Cart
+              </button>
 
-                <Button
-                  icon={<ShoppingCartOutlined />}
-                  type="default"
-                  block
-                  disabled={!product.status}
-                >
-                  Add to Cart
-                </Button>
+              <button
+                disabled={!product.status}
+                className="w-full py-2.5 px-4 rounded-lg bg-pink-600 hover:bg-pink-700 text-white flex items-center justify-center gap-2 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <FaMoneyBillWave className="w-5 h-5" />
+                Buy Now
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
 
-                <Button
-                  icon={<DollarOutlined />}
-                  type="primary"
-                  danger
-                  block
-                  disabled={!product.status}
-                >
-                  Buy Now
-                </Button>
-              </Space>
-            </Space>
-          </Card>
-        </Col>
-      </Row>
-
-      {/* Related Products Section */}
-      <div style={{ marginTop: 48 }}>
-        <Title level={2} style={{ textAlign: "center", marginBottom: 24 }}>
+      {/* Related Products */}
+      <div className="mt-12">
+        <h2 className="text-3xl font-bold text-pink-700 text-center mb-6">
           Related Products
-        </Title>
-        <Row gutter={[24, 24]}>
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {relatedProducts.map((relatedProduct) => (
-            <Col xs={24} sm={12} md={8} key={relatedProduct.productId}>
-              <Card
-                hoverable
-                cover={
-                  <img
-                    alt={relatedProduct.productName}
-                    src={relatedProduct.image}
-                    style={{
-                      height: 200,
-                      objectFit: "contain",
-                      padding: 16,
-                    }}
-                  />
-                }
-                onClick={() =>
-                  navigate(`/product-detail/${relatedProduct.productId}`)
-                }
-              >
-                <Card.Meta
-                  title={relatedProduct.productName}
-                  description={
-                    <Text type="danger" strong>
-                      {relatedProduct.price.toLocaleString()} VND
-                    </Text>
-                  }
+            <div
+              key={relatedProduct.productId}
+              onClick={() =>
+                navigate(`/product-detail/${relatedProduct.productId}`)
+              }
+              className="bg-white rounded-lg light-md hover:shadow-lg transition-shadow cursor-pointer"
+            >
+              <div className="p-4">
+                <img
+                  alt={relatedProduct.productName}
+                  src={relatedProduct.image}
+                  className="h-48 w-full object-contain"
                 />
-              </Card>
-            </Col>
+                <div className="mt-4">
+                  <h3 className="font-semibold text-lg">
+                    {relatedProduct.productName}
+                  </h3>
+                  <p className="text-red-600 font-bold mt-2">
+                    {relatedProduct.price.toLocaleString()} VND
+                  </p>
+                </div>
+              </div>
+            </div>
           ))}
-        </Row>
+        </div>
       </div>
     </div>
   );

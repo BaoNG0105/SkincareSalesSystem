@@ -5,6 +5,7 @@ import "swiper/css"; // import CSS
 import "swiper/css/navigation"; // import Navigation
 import { getProduct } from '../services/api.product';
 import PropTypes from 'prop-types'; // Import PropTypes
+import { FaShoppingCart, FaMoneyBillWave } from "react-icons/fa"; // Add this import
 
 const ProductSection = ({ category }) => {
   const [products, setProducts] = useState([]);
@@ -49,37 +50,48 @@ const ProductSection = ({ category }) => {
             products.map((product) => (
               <SwiperSlide key={product.productId}>
                 <div 
-                  className="bg-white rounded-lg p-6 hover:shadow-lg transition-shadow duration-300"
+                  className="bg-white rounded-lg p-6 shadow-md hover:shadow-xl border border-gray-100 transition-all duration-300 transform hover:-translate-y-1"
                   onClick={() => {
                     window.location.href = `/product-detail/${product.productId}`;
                   }}
                 >
-                  <div className="relative mb-4 flex justify-center">
+                  <div className="relative mb-4 flex justify-center group">
                     <img 
                       src={product.image} 
                       alt={product.productName} 
-                      className="h-48 object-contain"
+                      className="h-48 object-contain transition-transform duration-300 group-hover:scale-110"
                     />
                     {product.status === 'out_of_stock' && (
-                      <div className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded-md text-sm">
+                      <div className="absolute top-2 right-2 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-medium shadow-sm">
                         Out of Stock
                       </div>
                     )}
                   </div>
-                  <h3 className="text-gray-800 font-medium text-lg leading-tight min-h-[50px]">
+                  <h3 className="text-gray-800 font-semibold text-lg leading-tight min-h-[50px] mb-2">
                     {product.productName}
                   </h3>
-                  <div className="text-xl font-bold text-[#C91F50]">
+                  <div className="text-xl font-bold text-[#C91F50] mb-4">
                     {product.price.toLocaleString()}đ
                   </div>
-                  <button 
-                    className="w-full bg-[#C91F50] text-white py-2 rounded-md font-medium hover:bg-[#A41841] transition-colors duration-300"
-                    onClick={() => {
-                      window.location.href = '/checkout';
-                    }}
-                  >
-                    Buy Now
-                  </button>
+                  <div className="space-y-3">
+                    <button 
+                      className="w-full py-2.5 px-4 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-800 flex items-center justify-center gap-2 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                      disabled={product.status === 'out_of_stock'}
+                    >
+                      <FaShoppingCart className="w-5 h-5" />
+                      Add to Cart
+                    </button>
+                    <button 
+                      className="w-full bg-[#C91F50] text-white py-2.5 px-4 rounded-lg font-medium hover:bg-[#A41841] transition-colors duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                      onClick={() => {
+                        window.location.href = '/checkout';
+                      }}
+                      disabled={product.status === 'out_of_stock'}
+                    >
+                      <FaMoneyBillWave className="w-5 h-5" />
+                      Buy Now
+                    </button>
+                  </div>
                 </div>
               </SwiperSlide>
             ))

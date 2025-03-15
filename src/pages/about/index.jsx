@@ -14,7 +14,7 @@ const AboutPage = () => {
           </div>
           <div className="relative container mx-auto px-4 h-full flex items-center">
             <div className="max-w-2xl">
-              <h1 className="text-5xl font-bold text-pink-800 mb-6">Our Story</h1>
+              <h1 className="text-5xl font-extrabold text-pink-800 mb-6">Our Story</h1>
               <p className="text-xl text-gray-700">Empowering beauty through science and nature since 2025</p>
             </div>
           </div>
