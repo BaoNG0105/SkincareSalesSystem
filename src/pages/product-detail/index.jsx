@@ -1,28 +1,73 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
-import api from "../../config/axios";
+import { useParams, useNavigate } from "react-router-dom";
+import { getProductById, getRelatedProducts } from "../../services/api.product";
+import { toast } from "react-toastify";
+import {
+  Row,
+  Col,
+  Typography,
+  Tag,
+  Button,
+  Card,
+  Spin,
+  Result,
+  Space,
+  Divider,
+} from "antd";
+import {
+  ShoppingCartOutlined,
+  DollarOutlined,
+  SwapOutlined,
+} from "@ant-design/icons";
+
+const { Title, Text, Paragraph } = Typography;
 
 const ProductDetailPage = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [product, setProduct] = useState(null);
+  const [relatedProducts, setRelatedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [compareProducts, setCompareProducts] = useState(() => {
+    const saved = localStorage.getItem("compareProducts");
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  useEffect(() => {
+    localStorage.setItem("compareProducts", JSON.stringify(compareProducts));
+  }, [compareProducts]);
+
+  const handleCompareToggle = (product) => {
+    setCompareProducts((prev) => {
+      const isProductInCompare = prev.some(
+        (p) => p.productId === product.productId
+      );
+      if (isProductInCompare) {
+        return prev.filter((p) => p.productId !== product.productId);
+      }
+      if (prev.length >= 2) {
+        toast.warning("Only 2 products can be compared!");
+        return prev;
+      }
+      return [...prev, product];
+    });
+  };
 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        console.log('Fetching product with ID:', id);
-        const response = await api.get(`/products/${id}`);
-        console.log('API Response:', response.data);
-        
-        if (response.data) {
-          setProduct(response.data);
+        const productData = await getProductById(id);
+        if (productData) {
+          setProduct(productData);
+          const related = await getRelatedProducts(productData.category, id);
+          setRelatedProducts(related.slice(0, 3));
         } else {
-          setError('Product not found');
+          setError("Product not found");
         }
       } catch (err) {
-        console.error('Error details:', err);
-        setError('Failed to load product details');
+        console.error("Error details:", err);
+        setError("Failed to load product details");
       } finally {
         setLoading(false);
       }
@@ -31,80 +76,203 @@ const ProductDetailPage = () => {
     fetchProduct();
   }, [id]);
 
-  if (loading) return <div className="text-center py-8">Loading...</div>;
-  if (error) return <div className="text-center py-8 text-red-600">{error}</div>;
-  if (!product) return <div className="text-center py-8">Product not found</div>;
+  if (loading)
+    return (
+      <div
+        style={{
+          minHeight: "60vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <Spin size="large" />
+      </div>
+    );
+
+  if (error)
+    return (
+      <Result
+        status="error"
+        title="Error"
+        subTitle={error}
+        extra={[
+          <Button type="primary" key="back" onClick={() => navigate("/")}>
+            Back to Home
+          </Button>,
+        ]}
+      />
+    );
+
+  if (!product)
+    return (
+      <Result
+        status="404"
+        title="Product not found"
+        extra={[
+          <Button type="primary" key="back" onClick={() => navigate("/")}>
+            Back to Home
+          </Button>,
+        ]}
+      />
+    );
 
   return (
-    <div className="min-h-screen bg-white py-12">
-      <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        
-          {/* Product Image with Zoom Effect */}
-          <div className="flex justify-center">
-            <div className="relative group w-[450px] h-[450px] overflow-hidden cursor-zoom-in">
-              {/* Hint Text */}
-              <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black/70 text-white px-3 py-1 rounded-md text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                Hover to zoom
-              </div>
-              
-              {/* Product Image */}
-              <img 
-                src={product.image} 
+    <div style={{ padding: "24px", background: "#f5f5f5", minHeight: "100vh" }}>
+      <Row gutter={[24, 24]} justify="center">
+        <Col xs={24} md={12}>
+          <Card>
+            <div className="group relative" style={{ height: 450 }}>
+              <img
+                src={product.image}
                 alt={product.productName}
-                className="w-full h-full object-contain transition-transform duration-300 ease-out group-hover:scale-150"
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "contain",
+                  transition: "transform 0.3s ease",
+                }}
+                className="hover:scale-150"
               />
-            </div>
-          </div>
-
-          {/* Product Info */}
-          <div className="space-y-6">
-            <h1 className="text-3xl font-bold text-gray-800">{product.productName}</h1>
-            <p className="text-2xl font-bold text-[#C91F50]">
-              {product.price.toLocaleString()} VND
-            </p>
-            <div className="space-y-4">
-              <h2 className="text-xl font-semibold">Description</h2>
-              <p className="text-gray-600">{product.description}</p>
-            </div>
-
-            {/* Stock Status */}
-            <div className="flex items-center space-x-4">
-              <span className="text-gray-600">Status:</span>
-              <span className={`px-3 py-1 rounded-full text-sm ${
-                product.status ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-              }`}>
-                {product.status ? 'In Stock' : 'Out of Stock'}
-              </span>
-            </div>
-
-            {/* Stock Quantity */}
-            <div className="flex items-center space-x-4">
-              <span className="text-gray-600">Available:</span>
-              <span>{product.stockQuantity} items</span>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="space-y-4">
-              <button 
-                className="w-full bg-white border-2 border-[#C91F50] text-[#C91F50] py-3 rounded-md font-medium hover:bg-[#C91F50] hover:text-white transition-colors duration-300 flex items-center justify-center gap-2"
-                disabled={!product.status}
+              <Tag
+                style={{
+                  position: "absolute",
+                  bottom: 16,
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  opacity: 0.8,
+                }}
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
-                Add to Cart
-              </button>
-              
-              <button 
-                className="w-full bg-[#C91F50] text-white py-3 rounded-md font-medium hover:bg-[#A41841] transition-colors duration-300"
-                disabled={!product.status}
-              >
-                Buy Now
-              </button>
+                Hover to zoom
+              </Tag>
             </div>
-          </div>
-        </div>
+          </Card>
+        </Col>
+
+        <Col xs={24} md={12}>
+          <Card>
+            <Space direction="vertical" size="large" style={{ width: "100%" }}>
+              <Title level={2}>{product.productName}</Title>
+
+              <Title level={3} type="danger">
+                {product.price.toLocaleString()} VND
+              </Title>
+
+              <Divider />
+
+              <div>
+                <Title level={4}>Description</Title>
+                <Paragraph>{product.description}</Paragraph>
+              </div>
+
+              <Space>
+                <Text>Status:</Text>
+                <Tag color={product.status ? "success" : "error"}>
+                  {product.status ? "In Stock" : "Out of Stock"}
+                </Tag>
+              </Space>
+
+              <Space>
+                <Text>Available:</Text>
+                <Tag color="processing">{product.stockQuantity} items</Tag>
+              </Space>
+
+              <Space
+                direction="vertical"
+                size="middle"
+                style={{ width: "100%" }}
+              >
+                <Button
+                  icon={<SwapOutlined />}
+                  type={
+                    compareProducts.some(
+                      (p) => p.productId === product.productId
+                    )
+                      ? "primary"
+                      : "default"
+                  }
+                  block
+                  onClick={() => handleCompareToggle(product)}
+                >
+                  {compareProducts.some(
+                    (p) => p.productId === product.productId
+                  )
+                    ? "Added to compare"
+                    : "Add to compare"}
+                </Button>
+
+                {compareProducts.length > 0 && (
+                  <Button
+                    icon={<SwapOutlined />}
+                    type="primary"
+                    block
+                    onClick={() => navigate("/product-compare")}
+                  >
+                    Compare ({compareProducts.length} products)
+                  </Button>
+                )}
+
+                <Button
+                  icon={<ShoppingCartOutlined />}
+                  type="default"
+                  block
+                  disabled={!product.status}
+                >
+                  Add to Cart
+                </Button>
+
+                <Button
+                  icon={<DollarOutlined />}
+                  type="primary"
+                  danger
+                  block
+                  disabled={!product.status}
+                >
+                  Buy Now
+                </Button>
+              </Space>
+            </Space>
+          </Card>
+        </Col>
+      </Row>
+
+      {/* Related Products Section */}
+      <div style={{ marginTop: 48 }}>
+        <Title level={2} style={{ textAlign: "center", marginBottom: 24 }}>
+          Related Products
+        </Title>
+        <Row gutter={[24, 24]}>
+          {relatedProducts.map((relatedProduct) => (
+            <Col xs={24} sm={12} md={8} key={relatedProduct.productId}>
+              <Card
+                hoverable
+                cover={
+                  <img
+                    alt={relatedProduct.productName}
+                    src={relatedProduct.image}
+                    style={{
+                      height: 200,
+                      objectFit: "contain",
+                      padding: 16,
+                    }}
+                  />
+                }
+                onClick={() =>
+                  navigate(`/product-detail/${relatedProduct.productId}`)
+                }
+              >
+                <Card.Meta
+                  title={relatedProduct.productName}
+                  description={
+                    <Text type="danger" strong>
+                      {relatedProduct.price.toLocaleString()} VND
+                    </Text>
+                  }
+                />
+              </Card>
+            </Col>
+          ))}
+        </Row>
       </div>
     </div>
   );

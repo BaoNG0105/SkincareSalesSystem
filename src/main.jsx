@@ -32,6 +32,7 @@ import ProductPage from "./pages/dashboard/product/index.jsx";
 import StaffPage from "./pages/dashboard/staff/index.jsx";
 import OrderPage from "./pages/dashboard/order/index.jsx";
 import CustomerPage from "./pages/dashboard/customer/index.jsx";
+import ProductComparePage from "./pages/product-compare/index.jsx";
 
 //Single Page Application
 //Client side rendering
@@ -124,6 +125,18 @@ const router = createBrowserRouter([
       {
         path: "/product-search",
         element: <ProductSearchPage />,
+      },
+    ],
+  },
+
+  //Product Compare Page
+  {
+    path: "/product-compare",
+    element: <MainLayout />,
+    children: [
+      {
+        path: "/product-compare",
+        element: <ProductComparePage />,
       },
     ],
   },

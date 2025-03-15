@@ -13,13 +13,31 @@ export const getProduct = async () => {
 
 //API get product by id
 export const getProductById = async (id) => {
-    try {
-      const response = await api.get(`products/${id}`);
-      return response.data;
-    } catch (error) {
-      toast.error(error.response.data);
-    }
-  };
+  try {
+    const response = await api.get(`products/${id}`);
+    return response.data;
+  } catch (error) {
+    toast.error(error.response.data);
+  }
+};
+
+//API get related products
+export const getRelatedProducts = async (category, id) => {
+  try {
+    const response = await api.get(`products`);
+    const allProducts = response.data;
+    // Filter products by category and exclude the current product
+    const relatedProducts = allProducts.filter(
+      (product) => product.category === category && product.id !== id
+    );
+    // Shuffle the array to get random products
+    const shuffledProducts = relatedProducts.sort(() => 0.5 - Math.random());
+    // Return only 3 random products
+    return shuffledProducts.slice(0, 3);
+  } catch (error) {
+    toast.error(error.response.data);
+  }
+};
 
 //API post product
 export const postProduct = async (submitData) => {
