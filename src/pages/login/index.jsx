@@ -65,8 +65,15 @@ function LoginPage() {
         const data = await postLogin(formData);
         console.log("Login response:", data);
         if (data) {
+          const { token } = data; // lấy token từ data
+          localStorage.setItem("token", token); // Lưu token vào localStorage
           toast.success("Login successful!");
-          navigate("/");
+          navigate("/")
+          // if (data.role === "staff") {  //Phần quyền truy cập dashboard hay giao diện chính
+          //   navigate("/dashboard");
+          // } else if (data.role === "customer") {
+          //   navigate("/");
+          // }
         } else {
           toast.error("Login failed: Invalid credentials.");
         }

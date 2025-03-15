@@ -1,6 +1,6 @@
 import { useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { getProduct } from "../services/api.product";
+import { getProduct } from "../../services/api.product";
 
 const ProductSearchPage = () => {
   const location = useLocation();

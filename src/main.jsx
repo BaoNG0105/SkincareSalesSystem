@@ -5,6 +5,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Effect from "./components/effect.jsx";
 import { ToastContainer } from "react-toastify";
 
+import MainLayout from "./layout/MainLayout.jsx";
 import LoginPage from "./pages/login/index.jsx";
 import RegisterPage from "./pages/regiser/index.jsx";
 import HomePage from "./pages/home/index.jsx";
@@ -12,14 +13,14 @@ import SkinTestPage from "./pages/skinTest/index.jsx";
 import LocationPage from "./pages/location/index.jsx";
 import AboutPage from "./pages/about/index.jsx";
 import BlogPage from "./pages/blog/index.jsx";
-import MainLayout from "./layout/MainLayout.jsx";
-import CategoryPage from "./pages/category/index.jsx";
 import CleanserPage from "./pages/product/cleanser/index.jsx";
 import FaceMaskPage from "./pages/product/faceMask/index.jsx";
 import MoisturizerPage from "./pages/product/moisturizer/index.jsx";
 import SerumPage from "./pages/product/serum/index.jsx";
 import SunScreenPage from "./pages/product/sunScreen/index.jsx";
-import ProductDetail from "./pages/product-detail/index.jsx";
+import CategoryPage from "./pages/category/index.jsx";
+import ProductDetailPage from "./pages/product-detail/index.jsx";
+import ProductSearchPage from "./pages/product-search/index.jsx";
 import PromotionPage from "./pages/promotion/index.jsx";
 import FAQsPage from "./pages/FAQs/index.jsx";
 import PrivacyPolicyPage from "./pages/policies/privacy/index.jsx";
@@ -87,6 +88,42 @@ const router = createBrowserRouter([
       {
         path: "/location",
         element: <LocationPage />,
+      },
+    ],
+  },
+
+  //Category Page
+  {
+    path: "/category",
+    element: <MainLayout />,
+    children: [
+      {
+        path: "/category",
+        element: <CategoryPage />,
+      },
+    ],
+  },
+
+  //Product Detail Page
+  {
+    path: "/product-detail/:id",
+    element: <MainLayout />,
+    children: [
+      {
+        path: "",
+        element: <ProductDetailPage />,
+      },
+    ],
+  },
+
+  //Product Search Page
+  {
+    path: "/product-search",
+    element: <MainLayout />,
+    children: [
+      {
+        path: "/product-search",
+        element: <ProductSearchPage />,
       },
     ],
   },
@@ -235,18 +272,6 @@ const router = createBrowserRouter([
     ],
   },
 
-  //Product Detail Page
-  {
-    path: "/product-detail/:id",
-    element: <MainLayout />,
-    children: [
-      {
-        path: "",
-        element: <ProductDetail />,
-      },
-    ],
-  },
-
   //Promotion Page
   {
     path: "/promotion",
@@ -255,18 +280,6 @@ const router = createBrowserRouter([
       {
         path: "/promotion",
         element: <PromotionPage />,
-      },
-    ],
-  },
-
-  //Category Page
-  {
-    path: "/category",
-    element: <MainLayout />,
-    children: [
-      {
-        path: "/category",
-        element: <CategoryPage />,
       },
     ],
   },

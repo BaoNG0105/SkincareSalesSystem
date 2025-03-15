@@ -1,52 +1,52 @@
 import { Button, Modal, List, Form, Input, Avatar } from "antd";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { PlusOutlined } from "@ant-design/icons";
+import { getBlog } from "../../services/api.blog";
+import { postBlog } from "../../services/api.blog";
+import { toast } from "react-toastify";
+import { jwtDecode } from "jwt-decode";
 
 function BlogPage() {
   const [isOpen, setIsOpen] = useState(false);
-  const [editingPost, setEditingPost] = useState(null);
-  const [posts, setPosts] = useState([
-    {
-      key: "1",
-      title: "Identifying Your Skin Type",
-      author: "Alice Johnson",
-      date: "2025-03-11",
-      content: `Understanding your skin type is key to an effective skincare routine. 
-      The five main skin types—normal, dry, oily, combination, and sensitive—each require different care.`,
-      avatar: "https://via.placeholder.com/150",
-    },
-    {
-      key: "2",
-      title: "How to Choose the Right Sunscreen",
-      author: "Bob Brown",
-      date: "2025-03-10",
-      content:
-        "Choosing the right sunscreen can be challenging. Here are some tips...",
-      avatar: "https://via.placeholder.com/150",
-    },
-    {
-      key: "3",
-      title: "Top 10 Skincare Products for 2025",
-      author: "Alice Johnson",
-      date: "2025-03-10",
-      content:
-        "Discover the best skincare products to keep your skin glowing and healthy...",
-      avatar: "https://via.placeholder.com/150",
-    },
-  ]);
+  const [editingPost] = useState(null);
+  const [blogs, setBlogs] = useState([]);
+  const [form] = Form.useForm();
 
-  const handleAdd = (post) => {
-    setPosts([...posts, { ...post, key: posts.length + 1 }]);
-  };
+  useEffect(() => {
+    const fetchPosts = async () => {
+      const data = await getBlog();
+      setBlogs(data);
+    };
+    fetchPosts();
+  }, []);
 
-  const handleUpdate = (updatedPost) => {
-    setPosts(
-      posts.map((post) => (post.key === updatedPost.key ? updatedPost : post))
-    );
-  };
+  const handleAdd = async (post) => {
+    try {
 
-  const handleDelete = (key) => {
-    setPosts(posts.filter((post) => post.key !== key));
+      
+      const token = localStorage.getItem("token"); // Lấy token từ local storage
+      if (!token) { // TH chưa login
+        toast.error("Please login to add a blog post.");
+        return;
+      }
+      const decodedToken = jwtDecode(token); // Giải mã token
+      const userId = decodedToken.id; // Lấy id của user từ token
+
+      const formData = {
+        title: post.title, // Lấy title từ post
+        content: post.content, // Lấy content từ post
+        userId: Number(userId), // Chuyển đổi userId thành kiểu Long
+        category: post.category, // Lấy category từ post
+      };
+
+      await postBlog(formData); // Gửi formData đến backend
+      // Fetch posts again after adding a new blog
+      const data = await getBlog();
+      setBlogs(data);
+    } catch (error) {
+      console.error("Error fetching user or posting blog:", error);
+      toast.error("Failed to add blog. Please try again.");
+    }
   };
 
   return (
@@ -63,26 +63,28 @@ function BlogPage() {
           </p>
         </div>
       </section>
+
       {/* Blog Posts Section */}
       <section className="py-16">
         <div className="container mx-auto px-4">
           <h2 className="text-2xl font-semibold text-pink-800 mb-6">
             Latest Blog Posts
           </h2>
+
           <List
             itemLayout="vertical"
-            dataSource={posts}
-            renderItem={(post) => (
+            dataSource={blogs}
+            renderItem={(blog) => (
               <List.Item
-                key={post.key}
+                key={blog.key}
                 className="bg-white p-4 rounded-lg shadow-md mb-4"
               >
                 <List.Item.Meta
-                  avatar={<Avatar src={post.avatar} />}
-                  title={post.title}
-                  description={`By ${post.author} on ${post.date}`}
+                  avatar={<Avatar src={blog.avatar} />}
+                  title={blog.title}
+                  description={`By ${blog.author} on ${blog.date}`}
                 />
-                <div className="whitespace-pre-line">{post.content}</div>
+                <div className="whitespace-pre-line">{blog.content}</div>
               </List.Item>
             )}
           />
@@ -90,19 +92,26 @@ function BlogPage() {
             title={editingPost ? "Edit Post" : "Add Post"}
             open={isOpen}
             onCancel={() => setIsOpen(false)}
-            onOk={() => setIsOpen(false)}
+            onOk={() => {
+              // Collect form data and call handleAdd
+              const formData = {
+                title: form.getFieldValue("title"),
+                content: form.getFieldValue("content"),
+                category: form.getFieldValue("category"),
+                userId: form.getFieldValue("userId"),
+              };
+              handleAdd(formData);
+              setIsOpen(false);
+            }}
           >
-            <Form>
+            <Form form={form}>
               <Form.Item label="Title" name="title">
-                <Input />
-              </Form.Item>
-              <Form.Item label="Author" name="author">
                 <Input />
               </Form.Item>
               <Form.Item label="Content" name="content">
                 <Input.TextArea />
               </Form.Item>
-              <Form.Item label="Avatar URL" name="avatar">
+              <Form.Item label="Category" name="category">
                 <Input />
               </Form.Item>
             </Form>
