@@ -16,7 +16,6 @@ function Footer() {
                 <li><Link to="/return-policy" className="text-gray-600 hover:text-pink-600">Return Policy</Link></li>
                 <li><Link to="/privacy-policy" className="text-gray-600 hover:text-pink-600">Privacy Policy</Link></li>
                 <li><Link to="/terms-conditions" className="text-gray-600 hover:text-pink-600">Terms and Conditions</Link></li>
-                <li><Link to="/blog" className="text-gray-600 hover:text-pink-600">Blogs</Link></li>
                 <li><Link to="/faqs" className="text-gray-600 hover:text-pink-600">FAQs</Link></li>
               </ul>
             </div>
@@ -28,7 +27,7 @@ function Footer() {
                 <li><Link to="/about" className="text-gray-600 hover:text-pink-600">About Us</Link></li>
                 <li><Link to="/category" className="text-gray-600 hover:text-pink-600">Skin Care Library</Link></li>
                 <li><Link to="/skin-test" className="text-gray-600 hover:text-pink-600">Skin Test</Link></li>
-                <li><Link to="/dashboard" className="text-gray-600 hover:text-pink-600">Dash board</Link></li>
+                <li><Link to="/blog" className="text-gray-600 hover:text-pink-600">Blogs</Link></li>
               </ul>
             </div>
 
