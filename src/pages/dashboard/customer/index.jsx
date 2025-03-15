@@ -1,4 +1,4 @@
-import { Button, Modal, Table, Form, Input } from 'antd';
+import { Button, Modal, Table, Form, Input, Select } from 'antd';
 import React, { useState, useEffect } from 'react';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import api from '../../../config/axios';
@@ -9,40 +9,61 @@ function CustomerPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [editingCustomer, setEditingCustomer] = useState(null);
+  const [form] = Form.useForm();
 
   useEffect(() => {
-    const fetchCustomers = async () => {
-      try {
-        setLoading(true);
-        const response = await api.get('/users');
-        if (response.data) {
-          setCustomers(response.data.map(customer => ({
-            ...customer,
-            key: customer.id.toString()
-          })));
-        }
-      } catch (err) {
-        console.error('Error fetching customers:', err);
-        setError('Failed to load customers');
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchCustomers();
   }, []);
 
-  const handleUpdate = async (updatedCustomer) => {
+  const mapStatus = (status) => {
+    return status ? 'Hoạt động' : 'Không hoạt động';
+  };
+
+  const mapGender = (gender) => {
+    return gender === 'Male' ? 'Nam' : 'Nữ';
+  };
+
+  const fetchCustomers = async () => {
     try {
-      const response = await api.put(`/users/${updatedCustomer.id}`, updatedCustomer);
+      setLoading(true);
+      const response = await api.get('/users');
+      console.log('Raw API Response:', response.data);
       if (response.data) {
-        setCustomers(customers.map(customer => 
-          customer.id === updatedCustomer.id ? { ...response.data, key: response.data.id.toString() } : customer
-        ));
+        const mappedCustomers = response.data.map(customer => ({
+          ...customer,
+          key: customer.id.toString(),
+          status: mapStatus(customer.status),
+          gender: mapGender(customer.gender)
+        }));
+        console.log('Mapped Customer:', mappedCustomers[0]);
+        setCustomers(mappedCustomers);
       }
     } catch (err) {
-      console.error('Error updating customer:', err);
-      setError('Failed to update customer');
+      console.error('Lỗi khi lấy danh sách khách hàng:', err);
+      setError('Không thể tải danh sách khách hàng');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUpdate = async (values) => {
+    try {
+      const response = await api.put(`/users/${values.id}`, values);
+      if (response.data) {
+        setCustomers(customers.map(customer => 
+          customer.id === values.id ? { 
+            ...response.data, 
+            key: response.data.id.toString(),
+            status: mapStatus(response.data.status),
+            gender: mapGender(response.data.gender)
+          } : customer
+        ));
+        setIsOpen(false);
+        setEditingCustomer(null);
+      }
+    } catch (err) {
+      console.error('Lỗi khi cập nhật khách hàng:', err);
+      setError('Không thể cập nhật khách hàng');
     }
   };
 
@@ -51,32 +72,23 @@ function CustomerPage() {
       await api.delete(`/users/${id}`);
       setCustomers(customers.filter(customer => customer.id !== id));
     } catch (err) {
-      console.error('Error deleting customer:', err);
-      setError('Failed to delete customer');
+      console.error('Lỗi khi xóa khách hàng:', err);
+      setError('Không thể xóa khách hàng');
     }
   };
 
   const columns = [
     {
-      title: 'Avatar',
-      dataIndex: 'avatar',
-      key: 'avatar',
+      title: 'Ảnh đại diện',
+      dataIndex: 'profileImage',
+      key: 'profileImage',
       render: (text) => <img src={text} alt="avatar" style={{ width: 50, height: 50, borderRadius: '50%' }} />
     },
     {
-      title: 'Name',
-      dataIndex: 'name',
-      key: 'name',
-    },
-    {
-      title: 'ID',
-      dataIndex: 'id',
-      key: 'id',
-    },
-    {
-      title: 'Age',
-      dataIndex: 'age',
-      key: 'age',
+      title: 'Tên người dùng',
+      dataIndex: 'userName',
+      key: 'userName',
+      render: (text) => text || 'Chưa cập nhật'
     },
     {
       title: 'Email',
@@ -84,101 +96,200 @@ function CustomerPage() {
       key: 'email',
     },
     {
-      title: 'Phone',
-      dataIndex: 'phone',
-      key: 'phone',
+      title: 'Số điện thoại',
+      dataIndex: 'phoneNumber',
+      key: 'phoneNumber',
     },
     {
-      title: 'Address',
+      title: 'Địa chỉ',
       dataIndex: 'address',
       key: 'address',
     },
     {
-      title: 'Total Spent ($)',
-      dataIndex: 'totalSpent',
-      key: 'totalSpent',
+      title: 'Vai trò',
+      dataIndex: 'role',
+      key: 'role',
     },
     {
-      title: 'Date Joined',
-      dataIndex: 'dateJoined',
-      key: 'dateJoined',
+      title: 'Giới tính',
+      dataIndex: 'gender',
+      key: 'gender',
     },
     {
-      title: 'Status',
+      title: 'Ngày sinh',
+      dataIndex: 'dateOfBirth',
+      key: 'dateOfBirth',
+      render: (text) => {
+        if (!text) return 'Chưa cập nhật';
+        try {
+          return new Date(text).toLocaleDateString('vi-VN');
+        } catch (error) {
+          return text;
+        }
+      }
+    },
+    {
+      title: 'Số dư',
+      dataIndex: 'money',
+      key: 'money',
+      render: (money) => `${money?.toLocaleString('vi-VN')} đ`
+    },
+    {
+      title: 'Ngày tạo',
+      dataIndex: 'createdAt',
+      key: 'createdAt',
+      render: (text) => {
+        if (!text) return 'Chưa cập nhật';
+        try {
+          return new Date(text).toLocaleDateString('vi-VN');
+        } catch (error) {
+          return text;
+        }
+      }
+    },
+    {
+      title: 'Trạng thái',
       dataIndex: 'status',
       key: 'status',
+      render: (status) => (
+        <span style={{ 
+          color: status === 'Hoạt động' ? 'green' : 'red',
+          fontWeight: 'bold'
+        }}>
+          {status}
+        </span>
+      )
     },
     {
-      title: 'Actions',
+      title: 'Thao tác',
       key: 'actions',
       render: (_, record) => (
         <span>
-          <Button icon={<EditOutlined />} onClick={() => { setEditingCustomer(record); setIsOpen(true); }} />
-          <Button icon={<DeleteOutlined />} onClick={() => handleDelete(record.id)} danger />
+          <Button 
+            icon={<EditOutlined />} 
+            onClick={() => {
+              setEditingCustomer(record);
+              form.setFieldsValue({
+                ...record,
+                dateOfBirth: record.dateOfBirth ? record.dateOfBirth.split('T')[0] : '',
+              });
+              setIsOpen(true);
+            }}
+            style={{ marginRight: 8 }}
+          />
+          <Button 
+            icon={<DeleteOutlined />} 
+            onClick={() => handleDelete(record.id)} 
+            danger 
+          />
         </span>
       ),
     }
   ];
 
-  if (loading) return <div className="text-center py-8">Loading...</div>;
+  if (loading) return <div className="text-center py-8">Đang tải...</div>;
   if (error) return <div className="text-center py-8 text-red-600">{error}</div>;
 
   return (
     <div>
       <Table dataSource={customers} columns={columns} />
       <Modal
-        title="Edit Customer"
-        visible={isOpen}
-        onCancel={() => { setIsOpen(false); setEditingCustomer(null); }}
-        onOk={() => {
-          const form = document.forms['customerForm'];
-          const updatedCustomer = {
-            name: form.name.value,
-            id: form.id.value,
-            age: form.age.value,
-            email: form.email.value,
-            phone: form.phone.value,
-            address: form.address.value,
-            totalSpent: form.totalSpent.value,
-            dateJoined: form.dateJoined.value,
-            status: form.status.value,
-            avatar: form.avatar.value,
-          };
-          handleUpdate(updatedCustomer);
+        title="Chỉnh sửa thông tin khách hàng"
+        open={isOpen}
+        onCancel={() => {
           setIsOpen(false);
           setEditingCustomer(null);
+          form.resetFields();
+        }}
+        onOk={() => {
+          form.validateFields()
+            .then(values => {
+              handleUpdate(values);
+            })
+            .catch(info => {
+              console.log('Validate Failed:', info);
+            });
         }}
       >
-        <Form id="customerForm" initialValues={editingCustomer || {}}>
-          <Form.Item label="Name" name="name">
-            <Input defaultValue={editingCustomer?.name} />
+        <Form
+          form={form}
+          layout="vertical"
+          initialValues={editingCustomer}
+        >
+          <Form.Item 
+            label="Tên người dùng" 
+            name="userName"
+            rules={[{ required: true, message: 'Vui lòng nhập tên người dùng!' }]}
+          >
+            <Input />
           </Form.Item>
-          <Form.Item label="ID" name="id">
-            <Input defaultValue={editingCustomer?.id} />
+          <Form.Item 
+            label="Email" 
+            name="email"
+            rules={[
+              { required: true, message: 'Vui lòng nhập email!' },
+              { type: 'email', message: 'Email không hợp lệ!' }
+            ]}
+          >
+            <Input />
           </Form.Item>
-          <Form.Item label="Age" name="age">
-            <Input defaultValue={editingCustomer?.age} />
+          <Form.Item 
+            label="Số điện thoại" 
+            name="phoneNumber"
+            rules={[{ required: true, message: 'Vui lòng nhập số điện thoại!' }]}
+          >
+            <Input />
           </Form.Item>
-          <Form.Item label="Email" name="email">
-            <Input defaultValue={editingCustomer?.email} />
+          <Form.Item 
+            label="Địa chỉ" 
+            name="address"
+          >
+            <Input />
           </Form.Item>
-          <Form.Item label="Phone" name="phone">
-            <Input defaultValue={editingCustomer?.phone} />
+          <Form.Item 
+            label="Giới tính" 
+            name="gender"
+          >
+            <Select>
+              <Select.Option value="Male">Nam</Select.Option>
+              <Select.Option value="Female">Nữ</Select.Option>
+            </Select>
           </Form.Item>
-          <Form.Item label="Address" name="address">
-            <Input defaultValue={editingCustomer?.address} />
+          <Form.Item 
+            label="Ngày sinh" 
+            name="dateOfBirth"
+          >
+            <Input type="date" />
           </Form.Item>
-          <Form.Item label="Total Spent" name="totalSpent">
-            <Input defaultValue={editingCustomer?.totalSpent} />
+          <Form.Item 
+            label="Vai trò" 
+            name="role"
+          >
+            <Select>
+              <Select.Option value="Manager">Manager</Select.Option>
+              <Select.Option value="User">User</Select.Option>
+            </Select>
           </Form.Item>
-          <Form.Item label="Date Joined" name="dateJoined">
-            <Input defaultValue={editingCustomer?.dateJoined} />
+          <Form.Item 
+            label="Trạng thái" 
+            name="status"
+          >
+            <Select>
+              <Select.Option value={true}>Hoạt động</Select.Option>
+              <Select.Option value={false}>Không hoạt động</Select.Option>
+            </Select>
           </Form.Item>
-          <Form.Item label="Status" name="status">
-            <Input defaultValue={editingCustomer?.status} />
+          <Form.Item 
+            label="Số dư" 
+            name="money"
+          >
+            <Input type="number" />
           </Form.Item>
-          <Form.Item label="Avatar" name="avatar">
-            <Input defaultValue={editingCustomer?.avatar} />
+          <Form.Item 
+            label="Ảnh đại diện" 
+            name="profileImage"
+          >
+            <Input />
           </Form.Item>
         </Form>
       </Modal>
