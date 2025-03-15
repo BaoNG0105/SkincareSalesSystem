@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
@@ -14,6 +14,9 @@ function LoginPage() {
   });
 
   const [showPassword, setShowPassword] = useState(false);
+
+  const [isRememberMe, setIsRememberMe] = useState(false);
+
   const [errors, setErrors] = useState({});
 
   const navigate = useNavigate();
@@ -26,6 +29,18 @@ function LoginPage() {
     }));
     validateField(name, value);
   };
+
+  const handleChangeRememberMe = (e) => {
+    setIsRememberMe(e.target.checked);
+  };
+
+  useEffect(() => {
+    const savedEmail = localStorage.getItem("email");
+    if (savedEmail) {
+      setFormData((prev) => ({ ...prev, email: savedEmail }));
+      setIsRememberMe(true);
+    }
+  }, []);
 
   const validateField = (name, value) => {
     let newErrors = { ...errors };
@@ -64,24 +79,37 @@ function LoginPage() {
       try {
         const data = await postLogin(formData);
         console.log("Login response:", data);
-        if (data) {
-          const { token } = data; // lấy token từ data
-          localStorage.setItem("token", token); // Lưu token vào localStorage
+
+        if (typeof data === "string") {
+          // Kiểm tra nếu data là string
+          const token = data;
+          localStorage.setItem("token", token);
+          if (isRememberMe) {
+            localStorage.setItem("email", formData.email);
+          } else {
+            localStorage.removeItem("email");
+          }
           toast.success("Login successful!");
-          navigate("/")
-          // if (data.role === "staff") {  //Phần quyền truy cập dashboard hay giao diện chính
-          //   navigate("/dashboard");
-          // } else if (data.role === "customer") {
-          //   navigate("/");
-          // }
+          navigate("/");
+        } else if (data && data.token) {
+          // Kiểm tra nếu data có token
+          const token = data.token;
+          localStorage.setItem("token", token);
+          if (isRememberMe) {
+            localStorage.setItem("email", formData.email);
+          } else {
+            localStorage.removeItem("email");
+          }
+          toast.success("Login successful!");
+          navigate("/");
         } else {
+          // Kiểm tra nếu data không có token
+          console.error("Login failed: No token received");
           toast.error("Login failed: Invalid credentials.");
         }
       } catch (error) {
         console.error("Login failed:", error);
-        toast.error(
-          "Login failed: " + (error.response?.data || "Unknown error")
-        );
+        toast.error("Login failed: " + error.message);
       }
     }
   };
@@ -185,6 +213,8 @@ function LoginPage() {
               <div className="flex items-center">
                 <input
                   type="checkbox"
+                  checked={isRememberMe}
+                  onChange={handleChangeRememberMe}
                   className="h-4 w-4 text-pink-600 focus:ring-pink-500 border-gray-300 rounded"
                 />
                 <label className="ml-2 block text-sm text-gray-700">
