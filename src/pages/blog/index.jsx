@@ -4,7 +4,7 @@ import { PlusOutlined } from "@ant-design/icons";
 import { getBlog } from "../../services/api.blog";
 import { postBlog } from "../../services/api.blog";
 import { toast } from "react-toastify";
-import { jwtDecode } from "jwt-decode";
+import { jwtDecode } from "jwt-decode"; // Giải mã token
 
 function BlogPage() {
   const [isOpen, setIsOpen] = useState(false);
@@ -22,10 +22,9 @@ function BlogPage() {
 
   const handleAdd = async (post) => {
     try {
-
-      
       const token = localStorage.getItem("token"); // Lấy token từ local storage
-      if (!token) { // TH chưa login
+      if (!token) {
+        // TH chưa login
         toast.error("Please login to add a blog post.");
         return;
       }
@@ -33,10 +32,10 @@ function BlogPage() {
       const userId = decodedToken.id; // Lấy id của user từ token
 
       const formData = {
-        title: post.title, // Lấy title từ post
-        content: post.content, // Lấy content từ post
-        userId: Number(userId), // Chuyển đổi userId thành kiểu Long
-        category: post.category, // Lấy category từ post
+        title: post.title, 
+        content: post.content, 
+        userId: userId, // Lấy userId từ token
+        category: post.category, 
       };
 
       await postBlog(formData); // Gửi formData đến backend
@@ -80,9 +79,9 @@ function BlogPage() {
                 className="bg-white p-4 rounded-lg shadow-md mb-4"
               >
                 <List.Item.Meta
-                  avatar={<Avatar src={blog.avatar} />}
+                  avatar={<Avatar src={blog.author.profileImage} />}
                   title={blog.title}
-                  description={`By ${blog.author} on ${blog.date}`}
+                  description={`By ${blog.author.userName} on ${blog.createdAt}`}
                 />
                 <div className="whitespace-pre-line">{blog.content}</div>
               </List.Item>
