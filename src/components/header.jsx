@@ -75,7 +75,7 @@ function Header() {
               />
               <FaSearch className="absolute right-6 top-4 text-gray-400 text-lg" />
               {suggestions.length > 0 && (
-                <div className="absolute z-10 bg-white border border-gray-300 rounded-lg mt-1">
+                <div className="absolute z-10 bg-white border border-gray-300 rounded-lg mt-1 max-h-60 overflow-y-auto">
                   {suggestions.map((product) => (
                     <Link
                       key={product.productId}
