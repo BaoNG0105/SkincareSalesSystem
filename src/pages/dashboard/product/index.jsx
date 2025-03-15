@@ -1,4 +1,4 @@
-import { Button, Modal, Table, Form, Input, Avatar } from 'antd';
+import { Button, Modal, Table, Form, Input, Avatar, message } from 'antd';
 import { useState, useEffect } from 'react';
 import { EditOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import axios from 'axios';
@@ -7,23 +7,23 @@ function ProductPage() {
   const [isOpen, setIsOpen] = useState(false);
   const [products, setProducts] = useState([]);
   const [editingProduct, setEditingProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [form] = Form.useForm();
 
-  // Fetch products khi component mount
   useEffect(() => {
     fetchProducts();
   }, []);
 
   const fetchProducts = async () => {
     try {
+      setLoading(true);
       const response = await axios.get('http://localhost:8080/api/products');
-      // Log response để kiểm tra cấu trúc dữ liệu
       console.log('API Response:', response.data);
       
-      // Điều chỉnh mapping dữ liệu theo đúng response từ API
       const formattedProducts = response.data.map(product => ({
-        key: product.productId, // hoặc product.id tùy vào API
+        key: product.productId,
         productId: product.productId,
-        productName: product.productName, // đảm bảo đúng tên field từ API
+        productName: product.productName,
         quantity: product.quantity,
         price: product.price,
         description: product.description,
@@ -33,13 +33,16 @@ function ProductPage() {
       
       setProducts(formattedProducts);
     } catch (error) {
-      console.error('Lỗi khi lấy danh sách sản phẩm:', error);
+      console.error('Error fetching products:', error);
+      message.error('Unable to load products');
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleAdd = async (product) => {
     try {
-      const response = await axios.post('http://localhost:8080/api/products', {
+      await axios.post('http://localhost:8080/api/products', {
         productName: product.productName,
         quantity: product.quantity,
         price: product.price,
@@ -47,9 +50,11 @@ function ProductPage() {
         category: product.category,
         image: product.image
       });
-      fetchProducts(); // Refresh danh sách sau khi thêm
+      message.success('Product added successfully');
+      fetchProducts();
     } catch (error) {
-      console.error('Lỗi khi thêm sản phẩm:', error);
+      console.error('Error adding product:', error);
+      message.error('Failed to add product');
     }
   };
 
@@ -63,62 +68,77 @@ function ProductPage() {
         category: updatedProduct.category,
         image: updatedProduct.image
       });
-      fetchProducts(); // Refresh danh sách sau khi cập nhật
+      message.success('Product updated successfully');
+      fetchProducts();
     } catch (error) {
-      console.error('Lỗi khi cập nhật sản phẩm:', error);
+      console.error('Error updating product:', error);
+      message.error('Failed to update product');
     }
   };
 
   const handleDelete = async (productId) => {
     try {
       await axios.delete(`http://localhost:8080/api/products/${productId}`);
-      fetchProducts(); // Refresh danh sách sau khi xóa
+      message.success('Product deleted successfully');
+      fetchProducts();
     } catch (error) {
-      console.error('Lỗi khi xóa sản phẩm:', error);
+      console.error('Error deleting product:', error);
+      message.error('Failed to delete product');
     }
   };
 
   const columns = [
     {
-      title: 'Hình ảnh',
+      title: 'Image',
       dataIndex: 'image',
       key: 'image',
-      render: (text) => <Avatar src={text} />
+      render: (text) => <Avatar src={text} size={64} />
     },
     {
-      title: 'Tên sản phẩm',
-      dataIndex: 'productName', // Đảm bảo trùng với tên field từ API
+      title: 'Product Name',
+      dataIndex: 'productName',
       key: 'productName',
+      sorter: (a, b) => a.productName.localeCompare(b.productName)
     },
     {
-      title: 'Giá',
+      title: 'Price',
       dataIndex: 'price',
       key: 'price',
+      render: (price) => `$${price.toLocaleString('en-US')}`,
+      sorter: (a, b) => a.price - b.price
     },
     {
-      title: 'Mô tả',
+      title: 'Description',
       dataIndex: 'description',
       key: 'description',
+      ellipsis: true
     },
     {
-      title: 'Danh mục',
+      title: 'Category',
       dataIndex: 'category',
       key: 'category',
+      filters: Array.from(new Set(products.map(p => p.category))).map(category => ({
+        text: category,
+        value: category,
+      })),
+      onFilter: (value, record) => record.category === value
     },
     {
-      title: 'Số lượng',
+      title: 'Quantity',
       dataIndex: 'quantity',
       key: 'quantity',
+      sorter: (a, b) => a.quantity - b.quantity
     },
     {
-      title: 'Thao tác',
+      title: 'Actions',
       key: 'actions',
       render: (_, record) => (
         <span>
           <Button 
             icon={<EditOutlined />} 
             onClick={() => { 
-              setEditingProduct(record); 
+              setEditingProduct(record);
+              form.setFieldsValue(record);
               setIsOpen(true); 
             }} 
             style={{ marginRight: '8px' }}
@@ -136,93 +156,114 @@ function ProductPage() {
   return (
     <div>
       <Button 
-        onClick={() => setIsOpen(true)} 
+        onClick={() => {
+          setEditingProduct(null);
+          form.resetFields();
+          setIsOpen(true);
+        }} 
         type="primary" 
         icon={<PlusOutlined />}
         style={{ marginBottom: '16px' }}
       >
-        Thêm sản phẩm
+        Add Product
       </Button>
 
-      <Table dataSource={products} columns={columns} />
+      <Table 
+        dataSource={products} 
+        columns={columns}
+        loading={loading}
+        pagination={{
+          pageSize: 10,
+          showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} products`
+        }}
+      />
 
       <Modal
-        title={editingProduct ? "Sửa sản phẩm" : "Thêm sản phẩm"}
+        title={editingProduct ? "Edit Product" : "Add Product"}
         open={isOpen}
         onCancel={() => { 
           setIsOpen(false); 
-          setEditingProduct(null); 
+          setEditingProduct(null);
+          form.resetFields();
         }}
         onOk={() => {
-          const form = document.forms['productForm'];
-          const newProduct = {
-            productName: form.productName.value,
-            price: parseFloat(form.price.value),
-            description: form.description.value,
-            category: form.category.value,
-            quantity: parseInt(form.quantity.value),
-            image: form.image.value,
-            productId: editingProduct ? editingProduct.productId : null
-          };
+          form.validateFields()
+            .then(values => {
+              const productData = {
+                ...values,
+                productId: editingProduct?.productId
+              };
 
-          if (editingProduct) {
-            handleUpdate(newProduct);
-          } else {
-            handleAdd(newProduct);
-          }
-          setIsOpen(false);
-          setEditingProduct(null);
+              if (editingProduct) {
+                handleUpdate(productData);
+              } else {
+                handleAdd(productData);
+              }
+              setIsOpen(false);
+              setEditingProduct(null);
+              form.resetFields();
+            })
+            .catch(info => {
+              console.log('Validation Failed:', info);
+            });
         }}
       >
         <Form 
-          id="productForm" 
-          initialValues={editingProduct || {}}
+          form={form}
           layout="vertical"
+          initialValues={editingProduct || {}}
         >
           <Form.Item 
-            label="Tên sản phẩm" 
+            label="Product Name" 
             name="productName"
-            rules={[{ required: true, message: 'Vui lòng nhập tên sản phẩm!' }]}
+            rules={[{ required: true, message: 'Please enter product name!' }]}
           >
             <Input />
           </Form.Item>
 
           <Form.Item 
-            label="Giá" 
+            label="Price" 
             name="price"
-            rules={[{ required: true, message: 'Vui lòng nhập giá!' }]}
+            rules={[
+              { required: true, message: 'Please enter price!' },
+              { type: 'number', min: 0, message: 'Price must be greater than or equal to 0!' }
+            ]}
           >
-            <Input type="number" />
+            <Input type="number" min={0} step={0.01} />
           </Form.Item>
 
           <Form.Item 
-            label="Mô tả" 
+            label="Description" 
             name="description"
           >
-            <Input.TextArea />
+            <Input.TextArea rows={4} />
           </Form.Item>
 
           <Form.Item 
-            label="Danh mục" 
+            label="Category" 
             name="category"
-            rules={[{ required: true, message: 'Vui lòng nhập danh mục!' }]}
+            rules={[{ required: true, message: 'Please enter category!' }]}
           >
             <Input />
           </Form.Item>
 
           <Form.Item 
-            label="Số lượng" 
+            label="Quantity" 
             name="quantity"
-            rules={[{ required: true, message: 'Vui lòng nhập số lượng!' }]}
+            rules={[
+              { required: true, message: 'Please enter quantity!' },
+              { type: 'number', min: 0, message: 'Quantity must be greater than or equal to 0!' }
+            ]}
           >
-            <Input type="number" />
+            <Input type="number" min={0} />
           </Form.Item>
 
           <Form.Item 
-            label="Link hình ảnh" 
+            label="Image URL" 
             name="image"
+            rules={[{ type: 'url', message: 'Please enter a valid URL!' }]}
           >
-            <Input />
+            <Input placeholder="Enter image URL" />
           </Form.Item>
         </Form>
       </Modal>

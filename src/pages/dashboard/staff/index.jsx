@@ -1,4 +1,12 @@
-import { Button, Modal, Table, Form, Input, Select } from 'antd';
+import { 
+  Button, 
+  Modal, 
+  Table, 
+  Form, 
+  Input, 
+  Select,
+  message 
+} from 'antd';
 import React, { useState, useEffect } from 'react';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import api from '../../../config/axios';
@@ -16,32 +24,34 @@ function StaffPage() {
   }, []);
 
   const mapStatus = (status) => {
-    return status ? 'Hoạt động' : 'Không hoạt động';
+    return status ? 'Active' : 'Inactive';
   };
 
   const mapGender = (gender) => {
-    return gender === 'Male' ? 'Nam' : 'Nữ';
+    return gender === 'Male' ? 'Male' : 'Female';
   };
 
   const fetchStaffs = async () => {
     try {
       setLoading(true);
-      // Thay đổi endpoint để lấy chỉ staff
-      const response = await api.get('/users?role=Staff');
+      const response = await api.get('/users');
       console.log('Raw API Response:', response.data);
       if (response.data) {
-        const mappedStaffs = response.data.map(staff => ({
+        const staffData = response.data.filter(user => 
+          user.role === 'Staff' || user.role === 'Manager'
+        );
+        const mappedStaffs = staffData.map(staff => ({
           ...staff,
           key: staff.id.toString(),
           status: mapStatus(staff.status),
           gender: mapGender(staff.gender)
         }));
-        console.log('Mapped Staff:', mappedStaffs[0]);
+        console.log('Mapped Staffs:', mappedStaffs);
         setStaffs(mappedStaffs);
       }
     } catch (err) {
-      console.error('Lỗi khi lấy danh sách nhân viên:', err);
-      setError('Không thể tải danh sách nhân viên');
+      console.error('Error loading staff list:', err);
+      message.error('Cannot load staff list');
     } finally {
       setLoading(false);
     }
@@ -49,10 +59,17 @@ function StaffPage() {
 
   const handleUpdate = async (values) => {
     try {
-      const response = await api.put(`/users/${values.id}`, {
+      const updatedStaff = {
         ...values,
-        role: 'Staff' // Đảm bảo role luôn là Staff
-      });
+        authorities: [{ authority: `ROLE_${values.role.toUpperCase()}` }],
+        enabled: true,
+        accountNonExpired: true,
+        credentialsNonExpired: true,
+        accountNonLocked: true,
+        deleted: false
+      };
+
+      const response = await api.put(`/users/${values.id}`, updatedStaff);
       if (response.data) {
         setStaffs(staffs.map(staff => 
           staff.id === values.id ? { 
@@ -64,10 +81,11 @@ function StaffPage() {
         ));
         setIsOpen(false);
         setEditingStaff(null);
+        message.success('Update successful');
       }
     } catch (err) {
-      console.error('Lỗi khi cập nhật nhân viên:', err);
-      setError('Không thể cập nhật nhân viên');
+      console.error('Error updating staff:', err);
+      message.error('Cannot update staff');
     }
   };
 
@@ -75,24 +93,25 @@ function StaffPage() {
     try {
       await api.delete(`/users/${id}`);
       setStaffs(staffs.filter(staff => staff.id !== id));
+      message.success('Delete successful');
     } catch (err) {
-      console.error('Lỗi khi xóa nhân viên:', err);
-      setError('Không thể xóa nhân viên');
+      console.error('Error deleting staff:', err);
+      message.error('Cannot delete staff');
     }
   };
 
   const columns = [
     {
-      title: 'Ảnh đại diện',
+      title: 'Avatar',
       dataIndex: 'profileImage',
       key: 'profileImage',
       render: (text) => <img src={text} alt="avatar" style={{ width: 50, height: 50, borderRadius: '50%' }} />
     },
     {
-      title: 'Tên nhân viên',
+      title: 'Full Name',
       dataIndex: 'userName',
       key: 'userName',
-      render: (text) => text || 'Chưa cập nhật'
+      render: (text) => text || 'Not updated'
     },
     {
       title: 'Email',
@@ -100,53 +119,66 @@ function StaffPage() {
       key: 'email',
     },
     {
-      title: 'Số điện thoại',
+      title: 'Phone',
       dataIndex: 'phoneNumber',
       key: 'phoneNumber',
     },
     {
-      title: 'Địa chỉ',
+      title: 'Address',
       dataIndex: 'address',
       key: 'address',
     },
     {
-      title: 'Giới tính',
+      title: 'Role',
+      dataIndex: 'role',
+      key: 'role',
+      render: (role) => (
+        <span style={{
+          color: role === 'Manager' ? '#1890ff' : '#52c41a',
+          fontWeight: 'bold'
+        }}>
+          {role}
+        </span>
+      )
+    },
+    {
+      title: 'Gender',
       dataIndex: 'gender',
       key: 'gender',
     },
     {
-      title: 'Ngày sinh',
+      title: 'Date of Birth',
       dataIndex: 'dateOfBirth',
       key: 'dateOfBirth',
       render: (text) => {
-        if (!text) return 'Chưa cập nhật';
+        if (!text) return 'Not updated';
         try {
-          return new Date(text).toLocaleDateString('vi-VN');
+          return new Date(text).toLocaleDateString('en-US');
         } catch (error) {
           return text;
         }
       }
     },
     {
-      title: 'Ngày tạo',
+      title: 'Created Date',
       dataIndex: 'createdAt',
       key: 'createdAt',
       render: (text) => {
-        if (!text) return 'Chưa cập nhật';
+        if (!text) return 'Not updated';
         try {
-          return new Date(text).toLocaleDateString('vi-VN');
+          return new Date(text).toLocaleDateString('en-US');
         } catch (error) {
           return text;
         }
       }
     },
     {
-      title: 'Trạng thái',
+      title: 'Status',
       dataIndex: 'status',
       key: 'status',
       render: (status) => (
         <span style={{ 
-          color: status === 'Hoạt động' ? 'green' : 'red',
+          color: status === 'Active' ? 'green' : 'red',
           fontWeight: 'bold'
         }}>
           {status}
@@ -154,7 +186,7 @@ function StaffPage() {
       )
     },
     {
-      title: 'Thao tác',
+      title: 'Actions',
       key: 'actions',
       render: (_, record) => (
         <span>
@@ -180,14 +212,21 @@ function StaffPage() {
     }
   ];
 
-  if (loading) return <div className="text-center py-8">Đang tải...</div>;
+  if (loading) return <div className="text-center py-8">Loading...</div>;
   if (error) return <div className="text-center py-8 text-red-600">{error}</div>;
 
   return (
     <div>
-      <Table dataSource={staffs} columns={columns} />
+      <Table 
+        dataSource={staffs} 
+        columns={columns}
+        pagination={{
+          pageSize: 10,
+          showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`
+        }}
+      />
       <Modal
-        title="Chỉnh sửa thông tin nhân viên"
+        title="Edit Staff Information"
         open={isOpen}
         onCancel={() => {
           setIsOpen(false);
@@ -210,9 +249,9 @@ function StaffPage() {
           initialValues={editingStaff}
         >
           <Form.Item 
-            label="Tên nhân viên" 
+            label="Full Name" 
             name="userName"
-            rules={[{ required: true, message: 'Vui lòng nhập tên nhân viên!' }]}
+            rules={[{ required: true, message: 'Please input full name!' }]}
           >
             <Input />
           </Form.Item>
@@ -220,51 +259,61 @@ function StaffPage() {
             label="Email" 
             name="email"
             rules={[
-              { required: true, message: 'Vui lòng nhập email!' },
-              { type: 'email', message: 'Email không hợp lệ!' }
+              { required: true, message: 'Please input email!' },
+              { type: 'email', message: 'Invalid email format!' }
             ]}
           >
             <Input />
           </Form.Item>
           <Form.Item 
-            label="Số điện thoại" 
+            label="Phone" 
             name="phoneNumber"
-            rules={[{ required: true, message: 'Vui lòng nhập số điện thoại!' }]}
+            rules={[{ required: true, message: 'Please input phone number!' }]}
           >
             <Input />
           </Form.Item>
           <Form.Item 
-            label="Địa chỉ" 
+            label="Address" 
             name="address"
           >
             <Input />
           </Form.Item>
           <Form.Item 
-            label="Giới tính" 
-            name="gender"
+            label="Role" 
+            name="role"
+            rules={[{ required: true, message: 'Please select role!' }]}
           >
             <Select>
-              <Select.Option value="Male">Nam</Select.Option>
-              <Select.Option value="Female">Nữ</Select.Option>
+              <Select.Option value="Manager">Manager</Select.Option>
+              <Select.Option value="Staff">Staff</Select.Option>
             </Select>
           </Form.Item>
           <Form.Item 
-            label="Ngày sinh" 
+            label="Gender" 
+            name="gender"
+          >
+            <Select>
+              <Select.Option value="Male">Male</Select.Option>
+              <Select.Option value="Female">Female</Select.Option>
+            </Select>
+          </Form.Item>
+          <Form.Item 
+            label="Date of Birth" 
             name="dateOfBirth"
           >
             <Input type="date" />
           </Form.Item>
           <Form.Item 
-            label="Trạng thái" 
+            label="Status" 
             name="status"
           >
             <Select>
-              <Select.Option value={true}>Hoạt động</Select.Option>
-              <Select.Option value={false}>Không hoạt động</Select.Option>
+              <Select.Option value={true}>Active</Select.Option>
+              <Select.Option value={false}>Inactive</Select.Option>
             </Select>
           </Form.Item>
           <Form.Item 
-            label="Ảnh đại diện" 
+            label="Avatar" 
             name="profileImage"
           >
             <Input />

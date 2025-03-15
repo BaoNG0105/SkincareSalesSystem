@@ -1,4 +1,12 @@
-import { Button, Modal, Table, Form, Input, Select } from 'antd';
+import { 
+  Button, 
+  Modal, 
+  Table, 
+  Form, 
+  Input, 
+  Select,
+  message 
+} from 'antd';
 import React, { useState, useEffect } from 'react';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import api from '../../../config/axios';
@@ -16,11 +24,11 @@ function CustomerPage() {
   }, []);
 
   const mapStatus = (status) => {
-    return status ? 'Hoạt động' : 'Không hoạt động';
+    return status ? 'Active' : 'Inactive';
   };
 
   const mapGender = (gender) => {
-    return gender === 'Male' ? 'Nam' : 'Nữ';
+    return gender === 'Male' ? 'Male' : 'Female';
   };
 
   const fetchCustomers = async () => {
@@ -29,18 +37,20 @@ function CustomerPage() {
       const response = await api.get('/users');
       console.log('Raw API Response:', response.data);
       if (response.data) {
-        const mappedCustomers = response.data.map(customer => ({
+        const customerData = response.data.filter(user => user.role === 'Customer');
+        const mappedCustomers = customerData.map(customer => ({
           ...customer,
           key: customer.id.toString(),
           status: mapStatus(customer.status),
           gender: mapGender(customer.gender)
         }));
-        console.log('Mapped Customer:', mappedCustomers[0]);
+        console.log('Mapped Customers:', mappedCustomers);
         setCustomers(mappedCustomers);
       }
     } catch (err) {
-      console.error('Lỗi khi lấy danh sách khách hàng:', err);
-      setError('Không thể tải danh sách khách hàng');
+      console.error('Error loading customer list:', err);
+      setError('Unable to load customer list');
+      message.error('Unable to load customer list');
     } finally {
       setLoading(false);
     }
@@ -48,7 +58,10 @@ function CustomerPage() {
 
   const handleUpdate = async (values) => {
     try {
-      const response = await api.put(`/users/${values.id}`, values);
+      const response = await api.put(`/users/${values.id}`, {
+        ...values,
+        role: 'Customer'
+      });
       if (response.data) {
         setCustomers(customers.map(customer => 
           customer.id === values.id ? { 
@@ -60,10 +73,11 @@ function CustomerPage() {
         ));
         setIsOpen(false);
         setEditingCustomer(null);
+        message.success('Update successful');
       }
     } catch (err) {
-      console.error('Lỗi khi cập nhật khách hàng:', err);
-      setError('Không thể cập nhật khách hàng');
+      console.error('Error updating customer:', err);
+      message.error('Unable to update customer');
     }
   };
 
@@ -71,24 +85,25 @@ function CustomerPage() {
     try {
       await api.delete(`/users/${id}`);
       setCustomers(customers.filter(customer => customer.id !== id));
+      message.success('Delete successful');
     } catch (err) {
-      console.error('Lỗi khi xóa khách hàng:', err);
-      setError('Không thể xóa khách hàng');
+      console.error('Error deleting customer:', err);
+      message.error('Unable to delete customer');
     }
   };
 
   const columns = [
     {
-      title: 'Ảnh đại diện',
+      title: 'Avatar',
       dataIndex: 'profileImage',
       key: 'profileImage',
       render: (text) => <img src={text} alt="avatar" style={{ width: 50, height: 50, borderRadius: '50%' }} />
     },
     {
-      title: 'Tên người dùng',
+      title: 'Full Name',
       dataIndex: 'userName',
       key: 'userName',
-      render: (text) => text || 'Chưa cập nhật'
+      render: (text) => text || 'Not updated'
     },
     {
       title: 'Email',
@@ -96,64 +111,59 @@ function CustomerPage() {
       key: 'email',
     },
     {
-      title: 'Số điện thoại',
+      title: 'Phone',
       dataIndex: 'phoneNumber',
       key: 'phoneNumber',
     },
     {
-      title: 'Địa chỉ',
+      title: 'Address',
       dataIndex: 'address',
       key: 'address',
     },
     {
-      title: 'Vai trò',
-      dataIndex: 'role',
-      key: 'role',
-    },
-    {
-      title: 'Giới tính',
+      title: 'Gender',
       dataIndex: 'gender',
       key: 'gender',
     },
     {
-      title: 'Ngày sinh',
+      title: 'Date of Birth',
       dataIndex: 'dateOfBirth',
       key: 'dateOfBirth',
       render: (text) => {
-        if (!text) return 'Chưa cập nhật';
+        if (!text) return 'Not updated';
         try {
-          return new Date(text).toLocaleDateString('vi-VN');
+          return new Date(text).toLocaleDateString('en-US');
         } catch (error) {
           return text;
         }
       }
     },
     {
-      title: 'Số dư',
+      title: 'Balance',
       dataIndex: 'money',
       key: 'money',
-      render: (money) => `${money?.toLocaleString('vi-VN')} đ`
+      render: (money) => `$${money?.toLocaleString('en-US')}`
     },
     {
-      title: 'Ngày tạo',
+      title: 'Created Date',
       dataIndex: 'createdAt',
       key: 'createdAt',
       render: (text) => {
-        if (!text) return 'Chưa cập nhật';
+        if (!text) return 'Not updated';
         try {
-          return new Date(text).toLocaleDateString('vi-VN');
+          return new Date(text).toLocaleDateString('en-US');
         } catch (error) {
           return text;
         }
       }
     },
     {
-      title: 'Trạng thái',
+      title: 'Status',
       dataIndex: 'status',
       key: 'status',
       render: (status) => (
         <span style={{ 
-          color: status === 'Hoạt động' ? 'green' : 'red',
+          color: status === 'Active' ? 'green' : 'red',
           fontWeight: 'bold'
         }}>
           {status}
@@ -161,7 +171,7 @@ function CustomerPage() {
       )
     },
     {
-      title: 'Thao tác',
+      title: 'Actions',
       key: 'actions',
       render: (_, record) => (
         <span>
@@ -187,14 +197,21 @@ function CustomerPage() {
     }
   ];
 
-  if (loading) return <div className="text-center py-8">Đang tải...</div>;
+  if (loading) return <div className="text-center py-8">Loading...</div>;
   if (error) return <div className="text-center py-8 text-red-600">{error}</div>;
 
   return (
     <div>
-      <Table dataSource={customers} columns={columns} />
+      <Table 
+        dataSource={customers} 
+        columns={columns}
+        pagination={{
+          pageSize: 10,
+          showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} customers`
+        }}
+      />
       <Modal
-        title="Chỉnh sửa thông tin khách hàng"
+        title="Edit Customer Information"
         open={isOpen}
         onCancel={() => {
           setIsOpen(false);
@@ -207,7 +224,7 @@ function CustomerPage() {
               handleUpdate(values);
             })
             .catch(info => {
-              console.log('Validate Failed:', info);
+              console.log('Validation Failed:', info);
             });
         }}
       >
@@ -217,9 +234,9 @@ function CustomerPage() {
           initialValues={editingCustomer}
         >
           <Form.Item 
-            label="Tên người dùng" 
+            label="Full Name" 
             name="userName"
-            rules={[{ required: true, message: 'Vui lòng nhập tên người dùng!' }]}
+            rules={[{ required: true, message: 'Please enter full name!' }]}
           >
             <Input />
           </Form.Item>
@@ -227,66 +244,57 @@ function CustomerPage() {
             label="Email" 
             name="email"
             rules={[
-              { required: true, message: 'Vui lòng nhập email!' },
-              { type: 'email', message: 'Email không hợp lệ!' }
+              { required: true, message: 'Please enter email!' },
+              { type: 'email', message: 'Invalid email format!' }
             ]}
           >
             <Input />
           </Form.Item>
           <Form.Item 
-            label="Số điện thoại" 
+            label="Phone" 
             name="phoneNumber"
-            rules={[{ required: true, message: 'Vui lòng nhập số điện thoại!' }]}
+            rules={[{ required: true, message: 'Please enter phone number!' }]}
           >
             <Input />
           </Form.Item>
           <Form.Item 
-            label="Địa chỉ" 
+            label="Address" 
             name="address"
           >
             <Input />
           </Form.Item>
           <Form.Item 
-            label="Giới tính" 
+            label="Gender" 
             name="gender"
           >
             <Select>
-              <Select.Option value="Male">Nam</Select.Option>
-              <Select.Option value="Female">Nữ</Select.Option>
+              <Select.Option value="Male">Male</Select.Option>
+              <Select.Option value="Female">Female</Select.Option>
             </Select>
           </Form.Item>
           <Form.Item 
-            label="Ngày sinh" 
+            label="Date of Birth" 
             name="dateOfBirth"
           >
             <Input type="date" />
           </Form.Item>
           <Form.Item 
-            label="Vai trò" 
-            name="role"
-          >
-            <Select>
-              <Select.Option value="Manager">Manager</Select.Option>
-              <Select.Option value="User">User</Select.Option>
-            </Select>
-          </Form.Item>
-          <Form.Item 
-            label="Trạng thái" 
+            label="Status" 
             name="status"
           >
             <Select>
-              <Select.Option value={true}>Hoạt động</Select.Option>
-              <Select.Option value={false}>Không hoạt động</Select.Option>
+              <Select.Option value={true}>Active</Select.Option>
+              <Select.Option value={false}>Inactive</Select.Option>
             </Select>
           </Form.Item>
           <Form.Item 
-            label="Số dư" 
+            label="Balance" 
             name="money"
           >
             <Input type="number" />
           </Form.Item>
           <Form.Item 
-            label="Ảnh đại diện" 
+            label="Avatar" 
             name="profileImage"
           >
             <Input />
