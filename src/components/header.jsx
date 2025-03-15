@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import {
   FaMapMarkerAlt,
@@ -12,6 +12,7 @@ function Header() {
   const [showAuthOptions, setShowAuthOptions] = useState(false); // State để control dropdown
   const [searchTerm, setSearchTerm] = useState(""); // State để lưu trữ từ khóa tìm kiếm
   const [suggestions, setSuggestions] = useState([]); // State để lưu trữ gợi ý sản phẩm
+  const navigate = useNavigate(); // Khởi tạo useNavigate
 
   const handleSearchChange = async (e) => {
     const value = e.target.value;
@@ -31,6 +32,12 @@ function Header() {
       ); // Cập nhật gợi ý sản phẩm
     } else {
       setSuggestions([{ productName: "Product not found" }]); // Nếu không có từ khóa, hiển thị từ không tìm thấy
+    }
+  };
+
+  const handleSearchSubmit = () => {
+    if (searchTerm) {
+      navigate(`/product-search?query=${encodeURIComponent(searchTerm)}`); // Điều hướng đến trang tìm kiếm
     }
   };
 
@@ -72,8 +79,9 @@ function Header() {
                 className="w-80 px-6 py-3 rounded-full border border-pink-200 focus:outline-none focus:border-pink-400 text-base"
                 value={searchTerm}
                 onChange={handleSearchChange}
+                onKeyDown={(e) => e.key === 'Enter' && handleSearchSubmit()}
               />
-              <FaSearch className="absolute right-6 top-4 text-gray-400 text-lg" />
+              <FaSearch className="absolute right-6 top-4 text-gray-400 text-lg" onClick={handleSearchSubmit} />
               {suggestions.length > 0 && (
                 <div className="absolute z-10 bg-white border border-gray-300 rounded-lg mt-1 max-h-60 overflow-y-auto">
                   {suggestions.map((product) => (
