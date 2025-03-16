@@ -7,7 +7,8 @@ import { ToastContainer } from "react-toastify";
 
 import MainLayout from "./layout/MainLayout.jsx";
 import LoginPage from "./pages/login/index.jsx";
-import RegisterPage from "./pages/regiser/index.jsx";
+import ProfilePage from "./pages/profile/index.jsx";
+import RegisterPage from "./pages/register/index.jsx";
 import HomePage from "./pages/home/index.jsx";
 import SkinTestPage from "./pages/skinTest/index.jsx";
 import LocationPage from "./pages/location/index.jsx";
@@ -71,6 +72,18 @@ const router = createBrowserRouter([
       {
         path: "/register",
         element: <RegisterPage />,
+      },
+    ],
+  },
+
+  //Profile Page
+  {
+    path: "/profile",
+    element: <MainLayout />,
+    children: [
+      {
+        path: "/profile",
+        element: <ProfilePage />,
       },
     ],
   },

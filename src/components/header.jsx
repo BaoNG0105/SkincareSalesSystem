@@ -5,15 +5,19 @@ import {
   FaSearch,
   FaShoppingCart,
   FaUser,
+  FaSignOutAlt,
 } from "react-icons/fa";
 import { getProduct } from "../services/api.product";
+import { jwtDecode } from "jwt-decode";
 
 function Header() {
   const [showAuthOptions, setShowAuthOptions] = useState(false); // State để control dropdown
   const [searchTerm, setSearchTerm] = useState(""); // State để lưu trữ từ khóa tìm kiếm
   const [suggestions, setSuggestions] = useState([]); // State để lưu trữ gợi ý sản phẩm
+  const [user, setUser] = useState(null); // Thêm state cho user
   const navigate = useNavigate(); // Khởi tạo useNavigate
 
+  // Hàm xử lý thay đổi tìm kiếm
   const handleSearchChange = async (e) => {
     const value = e.target.value;
     setSearchTerm(value);
@@ -35,24 +39,53 @@ function Header() {
     }
   };
 
+  // Hàm xử lý submit tìm kiếm
   const handleSearchSubmit = () => {
     if (searchTerm) {
       navigate(`/product-search?query=${encodeURIComponent(searchTerm)}`); // Điều hướng đến trang tìm kiếm
     }
   };
 
+  // Hàm xử lý click ngoài
   const handleClickOutside = () => {
     setSuggestions([]); // Đặt lại gợi ý khi nhấp chuột ra ngoài
   };
 
+  // Sử dụng useEffect để thêm sự kiện click cho toàn bộ tài liệu
   useEffect(() => {
-    // Thêm sự kiện click cho toàn bộ tài liệu
     document.addEventListener("click", handleClickOutside);
     return () => {
       // Xóa sự kiện khi component bị hủy
       document.removeEventListener("click", handleClickOutside);
     };
   }, []);
+
+  // Kiểm tra token và lấy thông tin user
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        setUser(decoded);
+      } catch (error) {
+        console.error("Invalid token:", error);
+        localStorage.removeItem("token");
+      }
+    }
+  }, []);
+
+  // Hàm xử lý logout
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setUser(null);
+    setShowAuthOptions(false);
+    navigate("/login");
+  };
+
+  // Hàm để lấy chữ cái đầu của email cho avatar
+  const getInitials = (email) => {
+    return email ? email.charAt(0).toUpperCase() : "U";
+  };
 
   return (
     <header className="bg-pink-50 fixed top-0 left-0 w-full z-50 shadow-md border-b border-pink-100">
@@ -159,44 +192,83 @@ function Header() {
                 onMouseLeave={() => setShowAuthOptions(false)}
               >
                 <button className="p-2 rounded-full hover:bg-pink-100 transition-all duration-300">
-                  <FaUser className="text-pink-600 text-2xl transform group-hover:scale-110 transition-transform" />
+                  {user ? (
+                    <div className="w-8 h-8 rounded-full bg-pink-600 flex items-center justify-center">
+                      <span className="text-white font-medium text-sm">
+                        {getInitials(user.email)}
+                      </span>
+                    </div>
+                  ) : (
+                    <FaUser className="text-pink-600 text-2xl transform group-hover:scale-110 transition-transform" />
+                  )}
                 </button>
                 {/* Dropdown Menu */}
                 {showAuthOptions && (
                   <div
                     className="absolute right-0 mt-2 w-56 bg-white/95 backdrop-blur-sm 
                     rounded-2xl shadow-lg border border-pink-100 overflow-hidden transform 
-                    transition-all duration-300 ease-out"
+                    transition-all duration-300 ease-out z-50"
                   >
                     <div className="p-4 bg-gradient-to-r from-pink-100/50 to-pink-50/50">
                       <h3 className="text-pink-600 font-semibold text-lg mb-1">
-                        Welcome!
+                        {user ? `Welcome!` : "Welcome!"}
                       </h3>
-                      <p className="text-gray-600 text-sm">
-                        Please login or create an account
+                      <p className="text-gray-600 text-s">
+                        {user
+                          ? user.user
+                          : "Please login or create an account"}
                       </p>
                     </div>
                     <div className="p-2">
-                      <Link
-                        to="/login"
-                        className="flex items-center space-x-2 px-4 py-3 text-gray-700 
-                          hover:bg-pink-50 rounded-xl hover:text-pink-600 transition-colors"
-                      >
-                        <span className="p-1 bg-pink-100 rounded-lg">
-                          <FaUser className="text-pink-500 text-sm" />
-                        </span>
-                        <span className="font-medium">Login</span>
-                      </Link>
-                      <Link
-                        to="/register"
-                        className="flex items-center space-x-2 px-4 py-3 text-gray-700 
-                          hover:bg-pink-50 rounded-xl hover:text-pink-600 transition-colors"
-                      >
-                        <span className="p-1 bg-pink-100 rounded-lg">
-                          <FaUser className="text-pink-500 text-sm" />
-                        </span>
-                        <span className="font-medium">Sign Up</span>
-                      </Link>
+                      {user ? (
+                        // Menu cho user đã đăng nhập
+                        <>
+                          <Link
+                            to="/profile"
+                            className="flex items-center space-x-2 px-4 py-3 text-gray-700 
+                              hover:bg-pink-50 rounded-xl hover:text-pink-600 transition-colors"
+                          >
+                            <span className="p-1 bg-pink-100 rounded-lg">
+                              <FaUser className="text-pink-500 text-sm" />
+                            </span>
+                            <span className="font-medium">Profile</span>
+                          </Link>
+                          <button
+                            onClick={handleLogout}
+                            className="flex items-center space-x-2 px-4 py-3 text-gray-700 w-full
+                              hover:bg-pink-50 rounded-xl hover:text-pink-600 transition-colors"
+                          >
+                            <span className="p-1 bg-pink-100 rounded-lg">
+                              <FaSignOutAlt className="text-pink-500 text-sm" />
+                            </span>
+                            <span className="font-medium">Logout</span>
+                          </button>
+                        </>
+                      ) : (
+                        // Menu cho user chưa đăng nhập
+                        <>
+                          <Link
+                            to="/login"
+                            className="flex items-center space-x-2 px-4 py-3 text-gray-700 
+                              hover:bg-pink-50 rounded-xl hover:text-pink-600 transition-colors"
+                          >
+                            <span className="p-1 bg-pink-100 rounded-lg">
+                              <FaUser className="text-pink-500 text-sm" />
+                            </span>
+                            <span className="font-medium">Login</span>
+                          </Link>
+                          <Link
+                            to="/register"
+                            className="flex items-center space-x-2 px-4 py-3 text-gray-700 
+                              hover:bg-pink-50 rounded-xl hover:text-pink-600 transition-colors"
+                          >
+                            <span className="p-1 bg-pink-100 rounded-lg">
+                              <FaUser className="text-pink-500 text-sm" />
+                            </span>
+                            <span className="font-medium">Sign Up</span>
+                          </Link>
+                        </>
+                      )}
                     </div>
                   </div>
                 )}
@@ -227,7 +299,11 @@ function Header() {
                   after:content-[''] after:absolute after:left-0 after:bottom-0 
                   after:w-full after:h-0.5 after:bg-pink-400
                   after:transform after:transition-transform
-                  ${isActive ? 'text-pink-600 after:scale-x-100' : 'after:scale-x-0 hover:after:scale-x-100'}
+                  ${
+                    isActive
+                      ? "text-pink-600 after:scale-x-100"
+                      : "after:scale-x-0 hover:after:scale-x-100"
+                  }
                 `}
               >
                 MOISTURIZER
@@ -242,7 +318,11 @@ function Header() {
                   after:content-[''] after:absolute after:left-0 after:bottom-0 
                   after:w-full after:h-0.5 after:bg-pink-400
                   after:transform after:transition-transform
-                  ${isActive ? 'text-pink-600 after:scale-x-100' : 'after:scale-x-0 hover:after:scale-x-100'}
+                  ${
+                    isActive
+                      ? "text-pink-600 after:scale-x-100"
+                      : "after:scale-x-0 hover:after:scale-x-100"
+                  }
                 `}
               >
                 SERUM
@@ -257,7 +337,11 @@ function Header() {
                   after:content-[''] after:absolute after:left-0 after:bottom-0 
                   after:w-full after:h-0.5 after:bg-pink-400
                   after:transform after:transition-transform
-                  ${isActive ? 'text-pink-600 after:scale-x-100' : 'after:scale-x-0 hover:after:scale-x-100'}
+                  ${
+                    isActive
+                      ? "text-pink-600 after:scale-x-100"
+                      : "after:scale-x-0 hover:after:scale-x-100"
+                  }
                 `}
               >
                 CLEANSER
@@ -272,7 +356,11 @@ function Header() {
                   after:content-[''] after:absolute after:left-0 after:bottom-0 
                   after:w-full after:h-0.5 after:bg-pink-400
                   after:transform after:transition-transform
-                  ${isActive ? 'text-pink-600 after:scale-x-100' : 'after:scale-x-0 hover:after:scale-x-100'}
+                  ${
+                    isActive
+                      ? "text-pink-600 after:scale-x-100"
+                      : "after:scale-x-0 hover:after:scale-x-100"
+                  }
                 `}
               >
                 SUN SCREEN
@@ -287,7 +375,11 @@ function Header() {
                   after:content-[''] after:absolute after:left-0 after:bottom-0 
                   after:w-full after:h-0.5 after:bg-pink-400
                   after:transform after:transition-transform
-                  ${isActive ? 'text-pink-600 after:scale-x-100' : 'after:scale-x-0 hover:after:scale-x-100'}
+                  ${
+                    isActive
+                      ? "text-pink-600 after:scale-x-100"
+                      : "after:scale-x-0 hover:after:scale-x-100"
+                  }
                 `}
               >
                 FACE MASK
@@ -302,7 +394,11 @@ function Header() {
                   after:content-[''] after:absolute after:left-0 after:bottom-0 
                   after:w-full after:h-0.5 after:bg-pink-400
                   after:transform after:transition-transform
-                  ${isActive ? 'text-pink-600 after:scale-x-100' : 'after:scale-x-0 hover:after:scale-x-100'}
+                  ${
+                    isActive
+                      ? "text-pink-600 after:scale-x-100"
+                      : "after:scale-x-0 hover:after:scale-x-100"
+                  }
                 `}
               >
                 SPECIAL OFFERS
@@ -317,7 +413,11 @@ function Header() {
                   after:content-[''] after:absolute after:left-0 after:bottom-0 
                   after:w-full after:h-0.5 after:bg-pink-400
                   after:transform after:transition-transform
-                  ${isActive ? 'text-pink-600 after:scale-x-100' : 'after:scale-x-0 hover:after:scale-x-100'}
+                  ${
+                    isActive
+                      ? "text-pink-600 after:scale-x-100"
+                      : "after:scale-x-0 hover:after:scale-x-100"
+                  }
                 `}
               >
                 SKIN TEST
@@ -332,7 +432,11 @@ function Header() {
                   after:content-[''] after:absolute after:left-0 after:bottom-0 
                   after:w-full after:h-0.5 after:bg-pink-400
                   after:transform after:transition-transform
-                  ${isActive ? 'text-pink-600 after:scale-x-100' : 'after:scale-x-0 hover:after:scale-x-100'}
+                  ${
+                    isActive
+                      ? "text-pink-600 after:scale-x-100"
+                      : "after:scale-x-0 hover:after:scale-x-100"
+                  }
                 `}
               >
                 ABOUT US

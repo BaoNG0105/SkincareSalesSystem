@@ -1,24 +1,44 @@
-import api from '../config/axios';
+import api from "../config/axios";
+import { toast } from "react-toastify";
 
-export const userService = {
-  // Lấy danh sách users
-  getUsers: async () => {
-    const response = await api.get('/users');
+//API get all users
+export const getUsers = async () => {
+  try {
+    const response = await api.get("users");
     return response.data;
-  },
-
-  // Cập nhật thông tin user
-  updateUser: async (userId, userData) => {
-    const response = await api.put(`/users/${userId}`, userData);
-    return response.data;
-  },
-
-  // Xóa user
-  deleteUser: async (userId) => {
-    const response = await api.delete(`/users/${userId}`);
-    return response.data;
+  } catch (error) {
+    toast.error(error.response.data);
   }
 };
 
-// Thêm export default
-export default userService;
+//API get user by id
+export const getUserById = async (userId) => {
+  try {
+    const response = await api.get(`users/${userId}`);
+    return response.data;
+  } catch (error) {
+    toast.error(error.response.data);
+  }
+};
+
+//API update user
+export const updateUserById = async (userId, userData) => {
+  try {
+    const response = await api.put(`users/${userId}`, userData);
+    return response.data;
+  } catch (error) { 
+    toast.error(error.response.data);
+  }
+};
+
+//API delete user
+export const deleteUser = async (userId) => { 
+  try {
+    const response = await api.delete(`users/${userId}`);
+    return response.data;
+  } catch (error) {
+    toast.error(error.response.data);
+  }
+};
+
+
