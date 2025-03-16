@@ -76,16 +76,18 @@ public class User implements UserDetails {
     @Column(name = "money", nullable = false, columnDefinition = "DECIMAL(18,2) DEFAULT 0")
     private BigDecimal money = BigDecimal.ZERO;
 
-    @OneToMany
+    @OneToMany(mappedBy = "customer")
     private List<RatingFeedback> ratingFeedbacks;
 
-    @OneToMany private List<Blog> blogs;
+    @OneToMany(mappedBy = "author")
+    private List<Blog> blogs;
 
-    @OneToMany private List<Order> orders;
+    @OneToMany(mappedBy = "customer")
+    private List<Order> orders;
 
     // Mối quan hệ 1-N với SkinTest
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-    private List<SkinTest> skinTests;
+    @OneToMany(mappedBy = "user")
+    private List<TestResults> testResults;
 
     // isDeleted BOOLEAN NOT NULL DEFAULT 0
     private boolean isDeleted = false;
@@ -221,7 +223,7 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return email;
+        return userName;
     }
 
     @Override

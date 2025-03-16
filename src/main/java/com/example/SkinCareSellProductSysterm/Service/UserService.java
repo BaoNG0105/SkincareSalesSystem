@@ -1,10 +1,15 @@
 package com.example.SkinCareSellProductSysterm.Service;
 
+import com.example.SkinCareSellProductSysterm.DTO.RegisterRequest;
+import com.example.SkinCareSellProductSysterm.DTO.UserRequest;
 import com.example.SkinCareSellProductSysterm.Entity.User;
 import com.example.SkinCareSellProductSysterm.Repository.UserRepository;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.List;
