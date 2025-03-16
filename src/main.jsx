@@ -11,6 +11,7 @@ import ProfilePage from "./pages/profile/index.jsx";
 import RegisterPage from "./pages/register/index.jsx";
 import HomePage from "./pages/home/index.jsx";
 import SkinTestPage from "./pages/skinTest/index.jsx";
+import Routine from "./pages/routine/index.jsx";
 import LocationPage from "./pages/location/index.jsx";
 import AboutPage from "./pages/about/index.jsx";
 import BlogPage from "./pages/blog/index.jsx";
@@ -92,6 +93,18 @@ const router = createBrowserRouter([
   {
     path: "/skin-test",
     element: <SkinTestPage />,
+  },
+
+  //Routine Page
+  {
+    path: "/routine/:skinTypeId",
+    element: <MainLayout />,
+    children: [
+      {
+        path: "/routine/:skinTypeId",
+        element: <Routine />,
+      },
+    ],
   },
 
   //Location Page
@@ -357,6 +370,7 @@ const router = createBrowserRouter([
       },
     ],
   },
+
 ]);
 
 createRoot(document.getElementById("root")).render(

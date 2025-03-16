@@ -113,6 +113,21 @@ const SkinTypeTest = () => {
   const [testResult, setTestResult] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const handleAnswer = (questionId, answer) => {
+    setAnswers(prev => {
+      const newAnswers = [...prev];
+      newAnswers[currentQuestion] = answer;
+      return newAnswers;
+    });
+
+    if (currentQuestion < questions.length - 1) {
+      setCurrentQuestion(prev => prev + 1);
+    } else {
+      const result = calculateTestResult([...answers, answer]);
+      handleSubmitResult(result);
+    }
+  };
+
   const calculateTestResult = (answers) => {
     const counts = answers.reduce((acc, answer) => {
       if (answer) {
@@ -144,45 +159,29 @@ const SkinTypeTest = () => {
   const handleSubmitResult = async (testResultId) => {
     try {
       setIsSubmitting(true);
-      const token = localStorage.getItem("token");
-      
-      if (!token) {
+      const token = localStorage.getItem("token"); //Lấy token từ local storage
+      if (!token) { //Kiểm tra xem token có tồn tại không
         toast.error("Vui lòng đăng nhập để lưu kết quả kiểm tra da.");
         return;
       }
 
-      const decodedToken = jwtDecode(token);
-      const userId = decodedToken.id;
+      const decodedToken = jwtDecode(token);//Giải mã token
+      const userId = decodedToken.id;//Lấy id của user từ token
 
-      const formData = {
-        userId: userId,
-        testResultId: testResultId
+      const formData = { //Tạo form data để gửi lên API
+        userId: userId, //Lấy id của user từ token
+        testResultId: testResultId //Lấy id của kết quả kiểm tra da từ testResultId
       };
 
-      await postSkinTestResult(formData);
-      toast.success("Đã lưu kết quả kiểm tra da thành công!");
-      setTestResult(testResultId);
+      await postSkinTestResult(formData); //Gửi form data lên API
+      toast.success("Đã lưu kết quả kiểm tra da thành công!"); //Hiển thị thông báo thành công
+      setTestResult(testResultId); //Lưu kết quả kiểm tra da vào state
 
     } catch (error) {
-      console.error("Lỗi khi gửi kết quả:", error);
-      toast.error("Không thể lưu kết quả. Vui lòng thử lại.");
+      console.error("Lỗi khi gửi kết quả:", error); //Hiển thị lỗi nếu có lỗi
+      toast.error("Không thể lưu kết quả. Vui lòng thử lại."); //Hiển thị thông báo lỗi
     } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleAnswer = (questionId, answer) => {
-    setAnswers(prev => {
-      const newAnswers = [...prev];
-      newAnswers[currentQuestion] = answer;
-      return newAnswers;
-    });
-    
-    if (currentQuestion < questions.length - 1) {
-      setCurrentQuestion(prev => prev + 1);
-    } else {
-      const result = calculateTestResult([...answers, answer]);
-      handleSubmitResult(result);
+      setIsSubmitting(false); //Đặt trạng thái submit về false
     }
   };
 
@@ -190,7 +189,7 @@ const SkinTypeTest = () => {
     <header className="bg-white shadow-md relative">
       <div className="container mx-auto px-4 py-6">
         <h1 className="text-3xl font-bold text-pink-600 text-center">
-          Skin Test 
+          Skin Test
         </h1>
         <button
           onClick={() => window.location.href = '/'}
@@ -226,7 +225,7 @@ const SkinTypeTest = () => {
               What is your Skin Type?
             </h2>
             <p className="text-gray-600 mb-6">
-              Take the 3-minute skin type quiz now and build a skin care routine with medical-grade skincare brands. 
+              Take the 3-minute skin type quiz now and build a skin care routine with medical-grade skincare brands.
             </p>
             <p className="text-gray-600 mb-8">
               Our free skin care routine quiz was developed by dermatologists to accurately diagnose your skin type.
@@ -266,19 +265,32 @@ const SkinTypeTest = () => {
             <p className="text-xl text-gray-700 mb-8">
               {resultMessages[testResult]}
             </p>
-            <button
-              onClick={() => {
-                setIsStarted(false);
-                setCurrentQuestion(0);
-                setAnswers(Array(questions.length).fill(null));
-                setTestResult(null);
-              }}
-              className="px-8 py-3 bg-pink-500 text-white font-semibold rounded-full
-                       hover:bg-pink-600 transition-colors duration-200 shadow-md
-                       focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-opacity-50"
-            >
-              Take Test Again
-            </button>
+            <div className="space-y-4">
+              <button
+                onClick={() => {
+                  setIsStarted(false);
+                  setCurrentQuestion(0);
+                  setAnswers(Array(questions.length).fill(null));
+                  setTestResult(null);
+                }}
+                className="px-8 py-3 bg-pink-500 text-white font-semibold rounded-full
+                         hover:bg-pink-600 transition-colors duration-200 shadow-md
+                         focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-opacity-50"
+              >
+                Take Test Again
+              </button>
+
+              <button
+                onClick={() => {
+                  window.location.href = `/routine/${testResult}`;
+                }}
+                className="px-8 py-3 ml-4 bg-pink-600 text-white font-semibold rounded-full
+                         hover:bg-pink-700 transition-colors duration-200 shadow-md
+                         focus:outline-none focus:ring-2 focus:ring-pink-600 focus:ring-opacity-50"
+              >
+                View Recommended Routine
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -292,7 +304,7 @@ const SkinTypeTest = () => {
         <div className="bg-white rounded-lg shadow-lg p-8">
           <div className="mb-6">
             <div className="h-2 bg-pink-100 rounded-full">
-              <div 
+              <div
                 className="h-2 bg-pink-500 rounded-full transition-all duration-300"
                 style={{ width: `${((currentQuestion + 1) / questions.length) * 100}%` }}
               ></div>
@@ -306,7 +318,7 @@ const SkinTypeTest = () => {
             <h2 className="text-xl font-semibold text-gray-800 mb-6">
               {questions[currentQuestion].question}
             </h2>
-            
+
             <div className="space-y-4">
               {questions[currentQuestion].options.map((option) => (
                 <button
@@ -317,14 +329,13 @@ const SkinTypeTest = () => {
                            transition-colors duration-200 focus:outline-none focus:ring-2 
                            focus:ring-pink-500 focus:ring-opacity-50
                            ${answers[currentQuestion] === option.id
-                             ? 'bg-pink-100 border-pink-500 text-pink-700'
-                             : 'border-pink-200 hover:bg-pink-50 text-gray-700'
-                           }
+                      ? 'bg-pink-100 border-pink-500 text-pink-700'
+                      : 'border-pink-200 hover:bg-pink-50 text-gray-700'
+                    }
                            ${isSubmitting ? 'cursor-not-allowed opacity-50' : ''}`}
                 >
-                  <span className={`font-medium ${
-                    answers[currentQuestion] === option.id ? 'text-pink-700' : 'text-pink-600'
-                  }`}>
+                  <span className={`font-medium ${answers[currentQuestion] === option.id ? 'text-pink-700' : 'text-pink-600'
+                    }`}>
                     {option.id}.
                   </span>
                   <span className="ml-2">{option.text}</span>
@@ -349,18 +360,18 @@ const SkinTypeTest = () => {
                        ${isSubmitting ? 'cursor-not-allowed opacity-50' : ''}`}
             >
               <div className="flex items-center">
-                <svg 
-                  xmlns="http://www.w3.org/2000/svg" 
-                  className="h-5 w-5 mr-1" 
-                  fill="none" 
-                  viewBox="0 0 24 24" 
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5 mr-1"
+                  fill="none"
+                  viewBox="0 0 24 24"
                   stroke="currentColor"
                 >
-                  <path 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round" 
-                    strokeWidth={2} 
-                    d="M15 19l-7-7 7-7" 
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 19l-7-7 7-7"
                   />
                 </svg>
                 Back
@@ -374,24 +385,24 @@ const SkinTypeTest = () => {
                 className={`px-6 py-2 rounded-full font-medium
                          transition-colors duration-200 focus:outline-none
                          ${!answers[currentQuestion] || isSubmitting
-                           ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                           : 'bg-pink-500 text-white hover:bg-pink-600'
-                         }`}
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    : 'bg-pink-500 text-white hover:bg-pink-600'
+                  }`}
               >
                 <div className="flex items-center">
                   Next
-                  <svg 
-                    xmlns="http://www.w3.org/2000/svg" 
-                    className="h-5 w-5 ml-1" 
-                    fill="none" 
-                    viewBox="0 0 24 24" 
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 ml-1"
+                    fill="none"
+                    viewBox="0 0 24 24"
                     stroke="currentColor"
                   >
-                    <path 
-                      strokeLinecap="round" 
-                      strokeLinejoin="round" 
-                      strokeWidth={2} 
-                      d="M9 5l7 7-7 7" 
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 5l7 7-7 7"
                     />
                   </svg>
                 </div>
@@ -406,9 +417,9 @@ const SkinTypeTest = () => {
                 className={`px-6 py-2 rounded-full font-medium
                          transition-colors duration-200 focus:outline-none
                          ${!answers[currentQuestion] || isSubmitting
-                           ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                           : 'bg-pink-500 text-white hover:bg-pink-600'
-                         }`}
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    : 'bg-pink-500 text-white hover:bg-pink-600'
+                  }`}
               >
                 {isSubmitting ? 'Submitting...' : 'Submit'}
               </button>
