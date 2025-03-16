@@ -15,7 +15,7 @@ public class TestResults {
 
     /**
      * Liên kết 1-1 với bảng skin_type_tests qua test_id.
-     * Mỗi TestResult chỉ ứng với đúng 1 SkinTest.
+     * Mỗi TestResultService chỉ ứng với đúng 1 SkinTest.
      */
 //    @OneToOne
 //    @JoinColumn(name = "test_id", referencedColumnName = "test_id", nullable = false)
@@ -34,7 +34,7 @@ public class TestResults {
 
     /**
      * Liên kết ManyToOne tới SkinType (final_skin_type_id).
-     * Nhiều TestResult có thể có cùng kết quả SkinType.
+     * Nhiều TestResultService có thể có cùng kết quả SkinType.
      */
     @ManyToOne
     @JoinColumn(name = "final_skin_type_id", referencedColumnName = "skin_type_id", nullable = false)

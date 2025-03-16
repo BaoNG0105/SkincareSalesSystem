@@ -7,7 +7,7 @@ import com.example.SkinCareSellProductSysterm.Entity.User;
 
 import java.util.List;
 
-public class TestResult {
+public class TestResultService {
     public TestResults createTestResults(TestResultRequest testResultRequest) {
         User user = userRepository.findByIdAndIsDeletedFalse(testResultRequest.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
