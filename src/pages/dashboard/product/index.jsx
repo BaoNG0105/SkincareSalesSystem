@@ -42,19 +42,34 @@ function ProductPage() {
 
   const handleAdd = async (product) => {
     try {
-      await axios.post('http://localhost:8080/api/products', {
-        productName: product.productName,
-        quantity: product.quantity,
-        price: product.price,
-        description: product.description,
-        category: product.category,
-        image: product.image
+      if (!product.productName || !product.price || !product.category || !product.quantity) {
+        message.error('Vui lòng điền đầy đủ thông tin bắt buộc');
+        return;
+      }
+
+      if (product.price < 0 || product.quantity < 0) {
+        message.error('Giá và số lượng không được âm');
+        return;
+      }
+
+      const response = await axios.post('http://localhost:8080/api/products', {
+        productName: product.productName.trim(),
+        quantity: parseInt(product.quantity),
+        price: parseFloat(product.price),
+        description: product.description?.trim() || '',
+        category: product.category.trim(),
+        image: product.image?.trim() || ''
       });
-      message.success('Product added successfully');
-      fetchProducts();
+
+      if (response.status === 201 || response.status === 200) {
+        message.success('Thêm sản phẩm thành công');
+        setIsOpen(false);
+        form.resetFields();
+        fetchProducts();
+      }
     } catch (error) {
-      console.error('Error adding product:', error);
-      message.error('Failed to add product');
+      console.error('Lỗi khi thêm sản phẩm:', error);
+      message.error('Không thể thêm sản phẩm: ' + (error.response?.data?.message || error.message));
     }
   };
 
