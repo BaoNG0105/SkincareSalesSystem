@@ -21,6 +21,16 @@ export const getUserById = async (userId) => {
   }
 };
 
+//API update user password
+export const updateUserPassword = async (userId, passwordData) => {
+  try {
+    const response = await api.put(`users/password/${userId}`, passwordData);
+    return response.data;
+  } catch (error) {
+    toast.error(error.response.data);
+  }
+};
+
 //API update user
 export const updateUserById = async (userId, userData) => {
   try {
