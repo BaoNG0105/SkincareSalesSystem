@@ -17,7 +17,7 @@ function LoginPage() {
 
   const [isRememberMe, setIsRememberMe] = useState(false);
 
-  const [errors, setErrors] = useState({});
+  const [errors] = useState({});
 
   const navigate = useNavigate();
 
@@ -27,7 +27,6 @@ function LoginPage() {
       ...prev,
       [name]: value,
     }));
-    validateField(name, value);
   };
 
   const handleChangeRememberMe = (e) => {
@@ -42,32 +41,6 @@ function LoginPage() {
     }
   }, []);
 
-  const validateField = (name, value) => {
-    let newErrors = { ...errors };
-
-    switch (name) {
-      case "email": {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(value)) {
-          newErrors.email = "Please enter a valid email address";
-        } else {
-          delete newErrors.email;
-        }
-        break;
-      }
-      case "password":
-        if (value.length < 8) {
-          newErrors.password = "Password must be at least 8 characters";
-        } else {
-          delete newErrors.password;
-        }
-        break;
-      default:
-        break;
-    }
-
-    setErrors(newErrors);
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
