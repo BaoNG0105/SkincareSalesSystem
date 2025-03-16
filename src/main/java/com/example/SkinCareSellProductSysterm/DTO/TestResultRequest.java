@@ -8,7 +8,6 @@ public class TestResultRequest {
     private Long testResultId;
 
     // Getter and Setter
-
     public Long getUserId() {
         return userId;
     }
