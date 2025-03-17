@@ -6,6 +6,7 @@ import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { auth } from "../../config/firebase";
 import { postLogin } from "../../services/api.login";
 import { toast } from "react-toastify";
+import { jwtDecode } from "jwt-decode"; // Giải mã token
 
 function LoginPage() {
   const [formData, setFormData] = useState({
@@ -63,7 +64,20 @@ function LoginPage() {
             localStorage.removeItem("email");
           }
           toast.success("Login successful!");
-          navigate("/");
+          const decodedToken = jwtDecode(token);
+          // console.log("Decoded Token:", decodedToken);
+          // console.log("Role from token:", decodedToken.role);
+          const role = decodedToken.role;
+          
+          // console.log("Role type:", typeof role);
+          // console.log("Role value:", role);
+          // console.log("Is Staff?:", role === 'Staff');
+          
+          if (role === 'Customer') {
+            navigate("/");
+          } else if (role === 'Staff' || role === 'Manager') {
+            navigate("/dashboard");
+          }
         } else if (data && data.token) {
           // Kiểm tra nếu data có token
           const token = data.token;
@@ -74,7 +88,20 @@ function LoginPage() {
             localStorage.removeItem("email");
           }
           toast.success("Login successful!");
-          navigate("/");
+          const decodedToken = jwtDecode(token);
+          console.log("Decoded Token:", decodedToken);
+          console.log("Role from token:", decodedToken.role);
+          const role = decodedToken.role;
+          
+          console.log("Role type:", typeof role);
+          console.log("Role value:", role);
+          console.log("Is Staff?:", role === 'Staff');
+          
+          if (role === 'Customer') {
+            navigate("/");
+          } else if (role === 'Staff' || role === 'Manager') {
+            navigate("/dashboard");
+          }
         } else {
           // Kiểm tra nếu data không có token
           console.error("Login failed: No token received");
