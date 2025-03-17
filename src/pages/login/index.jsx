@@ -1,12 +1,11 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { FcGoogle } from "react-icons/fc";
-import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
-import { auth } from "../../config/firebase";
+// import { FcGoogle } from "react-icons/fc";
 import { postLogin } from "../../services/api.login";
 import { toast } from "react-toastify";
 import { jwtDecode } from "jwt-decode"; // Giải mã token
+import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 
 function LoginPage() {
   const [formData, setFormData] = useState({
@@ -42,7 +41,6 @@ function LoginPage() {
     }
   }, []);
 
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (
@@ -65,17 +63,10 @@ function LoginPage() {
           }
           toast.success("Login successful!");
           const decodedToken = jwtDecode(token);
-          // console.log("Decoded Token:", decodedToken);
-          // console.log("Role from token:", decodedToken.role);
           const role = decodedToken.role;
-          
-          // console.log("Role type:", typeof role);
-          // console.log("Role value:", role);
-          // console.log("Is Staff?:", role === 'Staff');
-          
-          if (role === 'Customer') {
+          if (role === "Customer") {
             navigate("/");
-          } else if (role === 'Staff' || role === 'Manager') {
+          } else if (role === "Staff" || role === "Manager") {
             navigate("/dashboard");
           }
         } else if (data && data.token) {
@@ -89,17 +80,10 @@ function LoginPage() {
           }
           toast.success("Login successful!");
           const decodedToken = jwtDecode(token);
-          console.log("Decoded Token:", decodedToken);
-          console.log("Role from token:", decodedToken.role);
           const role = decodedToken.role;
-          
-          console.log("Role type:", typeof role);
-          console.log("Role value:", role);
-          console.log("Is Staff?:", role === 'Staff');
-          
-          if (role === 'Customer') {
+          if (role === "Customer") {
             navigate("/");
-          } else if (role === 'Staff' || role === 'Manager') {
+          } else if (role === "Staff" || role === "Manager") {
             navigate("/dashboard");
           }
         } else {
@@ -114,16 +98,27 @@ function LoginPage() {
     }
   };
 
-  const handleLoginGoogle = () => {
-    const provider = new GoogleAuthProvider();
-    signInWithPopup(auth, provider)
-      .then((result) => {
-        console.log("Login successful:", result.user);
-        // TODO: Add your post-login logic here
-      })
-      .catch((error) => {
-        console.error("Login failed:", error.message);
-      });
+  const handleGoogleSuccess = async (credentialResponse) => {
+    try {
+      const decoded = jwtDecode(credentialResponse.credential);
+      console.log("Google user info:", decoded);
+
+      // Lưu token vào localStorage
+      localStorage.setItem("token", credentialResponse.credential);
+
+      // Xử lý navigation dựa trên role (nếu có trong decoded token)
+      const role = decoded.role || "Customer"; // Default to Customer if no role
+      if (role === "Customer") {
+        navigate("/");
+      } else if (role === "Staff" || role === "Manager") {
+        navigate("/dashboard");
+      }
+
+      toast.success("Login with Google successful!");
+    } catch (error) {
+      console.error("Google login error:", error);
+      toast.error("Login failed: " + error.message);
+    }
   };
 
   return (
@@ -250,14 +245,22 @@ function LoginPage() {
             </div>
 
             {/* Google Login Button */}
-            <button
-              type="button"
-              onClick={handleLoginGoogle}
-              className="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500"
-            >
-              <FcGoogle className="w-5 h-5 mr-2" />
-              Sign in with Google
-            </button>
+            <div className="mt-4">
+              <GoogleOAuthProvider clientId="320408738074-vfl63gh4tcus7pp6f8i0s870kqhlkgmu.apps.googleusercontent.com">
+                <GoogleLogin
+                  onSuccess={handleGoogleSuccess}
+                  onError={() => {
+                    console.log("Login Failed");
+                    toast.error("Google login failed");
+                  }}
+                  useOneTap
+                  theme="outline"
+                  size="large"
+                  text="signin_with"
+                  shape="rectangular"
+                />
+              </GoogleOAuthProvider>
+            </div>
 
             {/* Register Link */}
             <div className="text-center">
