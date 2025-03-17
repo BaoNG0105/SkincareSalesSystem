@@ -1,0 +1,47 @@
+package com.example.demo.controller;
+
+import com.example.demo.entity.Promotion;
+import com.example.demo.dto.PromotionRequest;
+import com.example.demo.entity.SalesReport;
+import com.example.demo.service.PromotionService;
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@CrossOrigin(origins = "http://localhost:5173") // Thêm port của frontend vào đây")
+@RestController
+@RequestMapping("/api/promotions")
+public class PromotionController {
+
+    @Autowired
+    private PromotionService promotionService;
+
+    @PostMapping
+    public ResponseEntity<Promotion> createPromotion(@Valid @RequestBody PromotionRequest promotionRequest) {
+        return ResponseEntity.ok(promotionService.createPromotion(promotionRequest));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Promotion>> getAllPromotions() {
+        return ResponseEntity.ok(promotionService.getAllPromotions());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Promotion> getPromotionById(@PathVariable long id) {
+        return ResponseEntity.ok(promotionService.getPromotionById(id));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deletePromotion(@PathVariable long id) {
+        promotionService.deletePromotion(id);
+        return ResponseEntity.ok("Deleted promotion with ID: " + id);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Promotion> updatePromotion(@PathVariable long id, @Valid @RequestBody PromotionRequest promotionRequest) {
+        return ResponseEntity.ok(promotionService.updatePromotion(id, promotionRequest));
+    }
+}
