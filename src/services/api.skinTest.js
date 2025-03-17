@@ -21,3 +21,13 @@ export const getRoutinesByTestResult = async (skinTypeId) => {
         toast.error(error.response.data);
     }
 };
+
+//API get Recommended Products by Skin Type
+export const getRecommendedProducts = async (skinTypeId) => {
+    try {
+        const response = await api.get(`recommended-products/skin-type-id/${skinTypeId}`);
+        return response.data;
+    } catch (error) {
+        toast.error(error.response.data);
+    }
+};
