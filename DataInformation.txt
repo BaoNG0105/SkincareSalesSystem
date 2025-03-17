@@ -470,4 +470,3 @@ VALUES
 (123, 1, 'Acne-fighting ingredients for clear skin', false),
 (124, 4, 'Restores, hydrates, and brightens skin', false),
 (125, 2, 'Softens and maintains skin moisture', false);
-
