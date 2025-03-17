@@ -6,6 +6,7 @@ import { postLogin } from "../../services/api.login";
 import { toast } from "react-toastify";
 import { jwtDecode } from "jwt-decode"; // Giải mã token
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
+import { postRegister } from "../../services/api.register";
 
 function LoginPage() {
   const [formData, setFormData] = useState({
@@ -103,21 +104,66 @@ function LoginPage() {
       const decoded = jwtDecode(credentialResponse.credential);
       console.log("Google user info:", decoded);
 
-      // Lưu token vào localStorage
-      localStorage.setItem("token", credentialResponse.credential);
+      // Thử đăng nhập trước với email từ Google
+      const loginData = {
+        email: decoded.email,
+        password: decoded.sub, // Sử dụng sub như password
+      };
 
-      // Xử lý navigation dựa trên role (nếu có trong decoded token)
-      const role = decoded.role || "Customer"; // Default to Customer if no role
-      if (role === "Customer") {
-        navigate("/");
-      } else if (role === "Staff" || role === "Manager") {
-        navigate("/dashboard");
+      try {
+        // Thử đăng nhập trước
+        const loginResponse = await postLogin(loginData);
+        if (loginResponse) {
+          // Nếu đăng nhập thành công
+          localStorage.setItem('token', credentialResponse.credential);
+          const role = decoded.role || "Customer";
+          if (role === "Customer") {
+            navigate("/");
+          } else if (role === "Staff" || role === "Manager") {
+            navigate("/dashboard");
+          }
+          toast.success("Login with Google successful!");
+          return; // Thoát khỏi hàm nếu đăng nhập thành công
+        }
+      } catch (loginError) {
+        console.log("Login attempt failed:", loginError);
+        if (loginError.response) {
+          console.log("Error response:", loginError.response.data);
+        }
+        // Không hiển thị toast error ở đây vì chúng ta sẽ thử register
       }
 
-      toast.success("Login with Google successful!");
+      // Nếu đăng nhập thất bại, tiến hành đăng ký
+      const googleUserData = {
+        email: decoded.email,
+        userName: decoded.name,
+        passwordHash: decoded.sub,
+        gender: "string",
+        dateOfBirth:
+          decoded.birthdate || new Date().toISOString().split("T")[0],
+        address: "string",
+        phoneNumber: "string",
+        profileImage: decoded.picture || "string",
+      };
+
+      // Thử đăng ký tài khoản mới
+      const registerResponse = await postRegister(googleUserData);
+
+      if (registerResponse) {
+        localStorage.setItem("token", credentialResponse.credential);
+        const role = decoded.role || "Customer";
+        if (role === "Customer") {
+          navigate("/");
+        } else if (role === "Staff" || role === "Manager") {
+          navigate("/dashboard");
+        }
+        toast.success("Account created and logged in successfully!");
+      }
     } catch (error) {
-      console.error("Google login error:", error);
-      toast.error("Login failed: " + error.message);
+      console.error("Google authentication error:", error);
+      toast.error(
+        "Authentication failed: " + (error.response?.data || error.message)
+      );
     }
   };
 
