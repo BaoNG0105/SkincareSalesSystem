@@ -2,25 +2,17 @@ import {
   Button, 
   Modal, 
   Table, 
-  Form, 
-  Input, 
-  Select,
   message 
 } from 'antd';
 import React, { useState, useEffect } from 'react';
 import { DeleteOutlined } from '@ant-design/icons';
 import api from '../../../config/axios';
+import { deleteUser } from '../../../services/api.user';
 
 function CustomerPage() {
-  const [isOpen, setIsOpen] = useState(false);
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [form] = Form.useForm();
-
-  useEffect(() => {
-    fetchCustomers();
-  }, []);
 
   const mapStatus = (status) => {
     return status ? 'Active' : 'Inactive';
@@ -55,50 +47,14 @@ function CustomerPage() {
     }
   };
 
-  const handleAdd = async (values) => {
-    try {
-      if (!values.email || !values.passwordHash || !values.userName) {
-        message.error('Vui lòng điền đầy đủ thông tin bắt buộc!');
-        return;
-      }
-
-      const submitData = {
-        email: values.email.trim(),
-        passwordHash: values.passwordHash,
-        userName: values.userName.trim(),
-        gender: values.gender || "",
-        dateOfBirth: values.dateOfBirth || "",
-        address: values.address?.trim() || "",
-        phoneNumber: values.phoneNumber?.trim() || "",
-        profileImage: values.profileImage?.trim() || ""
-      };
-
-      const response = await api.post('auth/register', submitData);
-      if (response.data) {
-        const newCustomer = {
-          ...response.data,
-          key: response.data.id.toString(),
-          status: mapStatus(response.data.status),
-          gender: mapGender(response.data.gender)
-        };
-        setCustomers([...customers, newCustomer]);
-        setIsOpen(false);
-        form.resetFields();
-        message.success('Thêm khách hàng thành công');
-        fetchCustomers();
-      } else {
-        message.error('Không thể thêm khách hàng');
-      }
-    } catch (error) {
-      console.error('Error adding customer:', error);
-      message.error('Không thể thêm khách hàng: ' + error.message);
-    }
-  };
+  useEffect(() => {
+    fetchCustomers();
+  }, []);
 
   const handleDelete = async (userId) => {
     try {
-      const response = await api.delete(`/users/${userId}`);
-      if (response.status === 200) {
+      const response = await deleteUser(userId);
+      if (response) {
         setCustomers(prevCustomers => 
           prevCustomers.filter(customer => customer.id !== userId)
         );
@@ -106,7 +62,7 @@ function CustomerPage() {
       }
     } catch (err) {
       console.error('Lỗi khi xóa khách hàng:', err);
-      message.error(err.response?.data || 'Không thể xóa khách hàng');
+      message.error('Không thể xóa khách hàng');
     }
   };
 
@@ -222,17 +178,6 @@ function CustomerPage() {
 
   return (
     <div className="p-6">
-      <Button 
-        type="primary" 
-        onClick={() => {
-          setIsOpen(true);
-          form.resetFields();
-        }}
-        className="mb-4"
-      >
-        Add New Customer
-      </Button>
-      
       <div className="bg-white rounded-lg shadow">
         <Table 
           dataSource={customers} 
@@ -248,89 +193,6 @@ function CustomerPage() {
           className="w-full"
         />
       </div>
-
-      <Modal
-        title={<h3 className="text-lg font-semibold">Add New Customer</h3>}
-        open={isOpen}
-        onCancel={() => {
-          setIsOpen(false);
-          form.resetFields();
-        }}
-        onOk={() => {
-          form.validateFields()
-            .then(values => {
-              handleAdd(values);
-            })
-            .catch(info => {
-              console.log('Validation Failed:', info);
-            });
-        }}
-        className="max-w-2xl"
-      >
-        <Form
-          form={form}
-          layout="vertical"
-          className="mt-4"
-        >
-          <Form.Item 
-            label="Email" 
-            name="email"
-            rules={[
-              { required: true, message: 'Please enter email!' },
-              { type: 'email', message: 'Invalid email format!' }
-            ]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item 
-            label="Password" 
-            name="passwordHash"
-            rules={[{ required: true, message: 'Please enter password!' }]}
-          >
-            <Input.Password />
-          </Form.Item>
-          <Form.Item 
-            label="Full Name" 
-            name="userName"
-            rules={[{ required: true, message: 'Please enter full name!' }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item 
-            label="Phone" 
-            name="phoneNumber"
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item 
-            label="Address" 
-            name="address"
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item 
-            label="Gender" 
-            name="gender"
-          >
-            <Select>
-              <Select.Option value="Male">Male</Select.Option>
-              <Select.Option value="Female">Female</Select.Option>
-            </Select>
-          </Form.Item>
-          <Form.Item 
-            label="Date of Birth" 
-            name="dateOfBirth"
-          >
-            <Input type="date" />
-          </Form.Item>
-          <Form.Item 
-            label="Avatar" 
-            name="profileImage"
-          > 
-            <Input />
-          </Form.Item>
-        </Form>
-      </Modal>
     </div>
   );
 }
