@@ -2,7 +2,8 @@ package com.example.demo.utils;
 
 public enum OrderStatus {
     PENDING,
-    SHIPPED,
+    PROCESSING,
+    SHIPPING,
     DELIVERED,
     CANCELED
 }

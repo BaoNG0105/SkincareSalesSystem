@@ -34,8 +34,12 @@ public class OrderService {
     private UserRepository userRepository;
 
 
-
-
+    public List<Order> getOrdersByCustomerIdAndStatus(OrderStatus orderStatus, Long customerId) {
+        List<Order> orders = orderRepository.findByCustomer_IdAndIsDeletedFalse(customerId);
+        return orders.stream()
+                .filter(s -> s.getOrderStatus().equals(orderStatus))
+                .toList();
+    }
 
     // Lấy tất cả đơn hàng chưa bị xóa
     public List<Order> getAllOrders() {

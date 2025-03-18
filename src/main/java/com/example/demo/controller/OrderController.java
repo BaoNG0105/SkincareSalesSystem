@@ -36,6 +36,21 @@ public class OrderController {
         return ResponseEntity.ok(orderService.getAllOrders());
     }
 
+    @GetMapping("/{customerId}/status")
+    public ResponseEntity<List<Order>> getOrdersByCustomerIdAndStatus(@PathVariable Long customerId, @RequestParam String status) {
+        OrderStatus orderStatus;
+        try {
+            orderStatus = OrderStatus.valueOf(status.toUpperCase()); // Chuyển thành in hoa
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build(); // Trả về lỗi nếu status sai
+        }
+        List<Order> orders = orderService.getOrdersByCustomerIdAndStatus(orderStatus, customerId);
+
+        if (orders.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(orders);
+    }
 
     @GetMapping("/{orderId}")
     public ResponseEntity<Order> getOrderById(@PathVariable Long orderId) {
