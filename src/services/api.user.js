@@ -51,4 +51,12 @@ export const deleteUser = async (userId) => {
   }
 };
 
-
+//API post staff
+export const postStaff = async (submitData) => {
+  try {
+    const response = await api.post("users/create-staff", submitData);
+    return response.data;
+  } catch (error) {
+    toast.error(error.response.data);
+  }
+};
