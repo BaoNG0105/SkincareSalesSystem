@@ -138,12 +138,12 @@ function LoginPage() {
         email: decoded.email,
         userName: decoded.name,
         passwordHash: decoded.sub,
-        gender: "string",
+        gender: decoded.gender,
         dateOfBirth:
           decoded.birthdate || new Date().toISOString().split("T")[0],
-        address: "string",
-        phoneNumber: "string",
-        profileImage: decoded.picture || "string",
+        address: decoded.address,
+        phoneNumber: decoded.phoneNumber,
+        profileImage: decoded.picture || "",
       };
 
       // Thử đăng ký tài khoản mới
