@@ -41,8 +41,12 @@ public class OrderItemService {
         orderItem.setQuantity(request.getQuantity());
         orderItem.setUnitPrice(request.getUnitPrice());
         orderItem.setDiscountAmount(request.getDiscountAmount());
+        OrderItem savedOrderItem = orderItemRepository.save(orderItem);
 
-        return orderItemRepository.save(orderItem);
+        // Cập nhật totalPrice trong Order
+        updateOrderTotalPrice(order);
+
+        return savedOrderItem;
     }
 
     // Lấy danh sách tất cả OrderItem
@@ -75,9 +79,12 @@ public class OrderItemService {
         orderItem.setQuantity(request.getQuantity());
         orderItem.setUnitPrice(request.getUnitPrice());
         orderItem.setDiscountAmount(request.getDiscountAmount());
+        OrderItem updatedOrderItem = orderItemRepository.save(orderItem);
 
-        OrderItem updated = orderItemRepository.save(orderItem);
-        return orderItemRepository.save(orderItem);
+        // Cập nhật totalPrice trong Order
+        updateOrderTotalPrice(orderItem.getOrder());
+
+        return updatedOrderItem;
     }
 
     // Xóa OrderItem
@@ -97,6 +104,18 @@ public class OrderItemService {
 
         List<OrderItem> orderItems = orderItemRepository.findByProductProductIdAndIsDeletedFalse(productId);
         return orderItems;
+    }
+
+    private void updateOrderTotalPrice(Order order) {
+        List<OrderItem> orderItems = orderItemRepository.findByOrderOrderIdAndIsDeletedFalse(order.getOrderId());
+        BigDecimal totalPrice = orderItems.stream()
+                .map(item -> item.getUnitPrice().multiply(new BigDecimal(item.getQuantity())).subtract(item.getDiscountAmount()))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        order.setTotalPrice(totalPrice);
+        orderRepository.save(order);
+
+
     }
 
     // Ch
