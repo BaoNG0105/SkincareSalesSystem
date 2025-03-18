@@ -69,6 +69,7 @@ function ProductPage() {
       fetchProducts();
     } catch (error) {
       console.error('Error adding product:', error);
+      message.error('Failed to add product');
     }
   };
 
@@ -78,12 +79,12 @@ function ProductPage() {
         message.error('Please fill in all required fields');
         return;
       }
-
+  
       if (updatedProduct.price < 0 || updatedProduct.quantity < 0) {
         message.error('Price and quantity cannot be negative');
         return;
       }
-
+  
       const submitData = {
         productName: updatedProduct.productName.trim(),
         description: updatedProduct.description?.trim() || 'string',
@@ -92,7 +93,7 @@ function ProductPage() {
         stockQuantity: parseInt(updatedProduct.quantity),
         image: updatedProduct.image?.trim() || 'string'
       };
-
+  
       const response = await updateProduct(updatedProduct.productId, submitData);
       
       if (response) {
@@ -276,10 +277,21 @@ function ProductPage() {
             name="price"
             rules={[
               { required: true, message: 'Please enter price!' },
-              { type: 'number', min: 0, message: 'Price must be greater than or equal to 0!' }
+              { 
+                validator: (_, value) => {
+                  const numValue = Number(value);
+                  if (isNaN(numValue)) {
+                    return Promise.reject('Please enter a valid number!');
+                  }
+                  if (numValue < 0) {
+                    return Promise.reject('Price must be greater than or equal to 0!');
+                  }
+                  return Promise.resolve();
+                }
+              }
             ]}
           >
-            <Input type="number" min={0} step={0.01} />
+            <Input type="number" min={0} step="any" />
           </Form.Item>
 
           <Form.Item 

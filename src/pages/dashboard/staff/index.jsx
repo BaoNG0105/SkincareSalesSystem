@@ -38,20 +38,23 @@ function StaffPage() {
     try {
       setLoading(true);
       const response = await api.get('/users');
-      if (response.status === 200) {
+      if (response.data) {
         const staffData = response.data.filter(user => 
           user.role === 'Staff' || user.role === 'Manager'
-        ).map(staff => ({
+        );
+        const mappedStaffs = staffData.map(staff => ({
           ...staff,
           key: staff.id.toString(),
           status: mapStatus(staff.status),
           gender: mapGender(staff.gender)
         }));
-        setStaffs(staffData);
+        console.log('Mapped Staffs:', mappedStaffs);
+        setStaffs(mappedStaffs);
       }
     } catch (err) {
-      setError(err.message);
-      message.error('Không thể tải danh sách nhân viên: ' + err.message);
+      console.error('Error loading staff list:', err);
+      setError('Unable to load staff list');
+      message.error('Unable to load staff list');
     } finally {
       setLoading(false);
     }
@@ -109,15 +112,18 @@ function StaffPage() {
     }
   };
 
-  const handleDelete = async (staffId) => {
+  const handleDelete = async (userId) => {
     try {
-      const response = await api.delete(`/users/${staffId}`);
-      if (response.status === 200) {
+      const response = await api.delete(`/users/${userId}`);
+      if (response) {
+        setStaffs(prevStaffs => 
+          prevStaffs.filter(staff => staff.id !== userId)
+        );
         message.success('Xóa nhân viên thành công');
-        await fetchStaffs();
       }
     } catch (err) {
-      message.error('Lỗi khi xóa nhân viên: ' + (err.response?.data?.message || err.message));
+      console.error('Lỗi khi xóa nhân viên:', err);
+      message.error('Không thể xóa nhân viên');
     }
   };
 
@@ -147,16 +153,22 @@ function StaffPage() {
 
   const columns = [
     {
-      title: 'Ảnh đại diện',
+      title: 'Avatar',
       dataIndex: 'profileImage',
       key: 'profileImage',
-      render: (text) => <img src={text || 'https://via.placeholder.com/50'} alt="avatar" style={{ width: 50, height: 50, borderRadius: '50%' }} />
+      render: (text) => (
+        <img 
+          src={text} 
+          alt="avatar" 
+          className="w-12 h-12 rounded-full object-cover"
+        />
+      )
     },
     {
-      title: 'Họ và tên',
+      title: 'Full Name',
       dataIndex: 'userName',
       key: 'userName',
-      render: (text) => text || 'Chưa cập nhật'
+      render: (text) => text || 'Not updated'
     },
     {
       title: 'Email',
@@ -164,132 +176,110 @@ function StaffPage() {
       key: 'email',
     },
     {
-      title: 'Số điện thoại',
+      title: 'Phone',
       dataIndex: 'phoneNumber',
       key: 'phoneNumber',
     },
     {
-      title: 'Địa chỉ',
+      title: 'Address',
       dataIndex: 'address',
       key: 'address',
     },
     {
-      title: 'Chức vụ',
+      title: 'Role',
       dataIndex: 'role',
       key: 'role',
       render: (role) => (
-        <span style={{
-          color: role === 'Manager' ? '#1890ff' : '#52c41a',
-          fontWeight: 'bold'
-        }}>
-          {role === 'Manager' ? 'Quản lý' : 'Nhân viên'}
+        <span className={`font-bold ${role === 'Manager' ? 'text-blue-500' : 'text-green-500'}`}>
+          {role}
         </span>
       )
     },
     {
-      title: 'Giới tính',
+      title: 'Gender',
       dataIndex: 'gender',
       key: 'gender',
-      render: (gender) => gender === 'Male' ? 'Nam' : 'Nữ'
     },
     {
-      title: 'Ngày sinh',
+      title: 'Date of Birth',
       dataIndex: 'dateOfBirth',
       key: 'dateOfBirth',
       render: (text) => {
-        if (!text) return 'Chưa cập nhật';
+        if (!text) return 'Not updated';
         try {
-          return new Date(text).toLocaleDateString('vi-VN');
+          return new Date(text).toLocaleDateString('en-US');
         } catch (error) {
           return text;
         }
       }
     },
     {
-      title: 'Ngày tạo',
+      title: 'Balance',
+      dataIndex: 'money',
+      key: 'money',
+      render: (money) => `$${money?.toLocaleString('en-US')}`
+    },
+    {
+      title: 'Created Date',
       dataIndex: 'createdAt',
       key: 'createdAt',
       render: (text) => {
-        if (!text) return 'Chưa cập nhật';
+        if (!text) return 'Not updated';
         try {
-          return new Date(text).toLocaleDateString('vi-VN');
+          return new Date(text).toLocaleDateString('en-US');
         } catch (error) {
           return text;
         }
       }
     },
     {
-      title: 'Trạng thái',
+      title: 'Status',
       dataIndex: 'status',
       key: 'status',
       render: (status) => (
-        <span style={{ 
-          color: status === 'Active' ? 'green' : 'red',
-          fontWeight: 'bold'
-        }}>
-          {status === 'Active' ? 'Hoạt động' : 'Không hoạt động'}
+        <span className={`font-bold ${status === 'Active' ? 'text-green-500' : 'text-red-500'}`}>
+          {status}
         </span>
       )
     },
     {
-      title: 'Thao tác',
+      title: 'Actions',
       key: 'actions',
       render: (_, record) => (
-        <Space>
+        <div className="flex gap-2">
           <Button 
-            type="primary"
-            icon={<EditOutlined />} 
-            onClick={() => handleEdit(record)}
-          />
-          <Button 
-            type="primary"
-            danger
             icon={<DeleteOutlined />} 
+            danger
             onClick={() => {
               if (record.role === 'Manager') {
-                message.warning('Không thể xóa tài khoản Quản lý');
+                message.warning('Cannot delete Manager account');
                 return;
               }
               showDeleteConfirm(record.id, record.userName);
             }}
           />
-        </Space>
+        </div>
       ),
     }
   ];
 
   return (
-    <div>
-      <div style={{ marginBottom: 16, textAlign: 'right' }}>
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          onClick={() => {
-            setEditingStaff(null);
-            form.resetFields();
-            form.setFieldsValue({
-              status: 'Active',
-              role: 'Staff',
-              gender: 'Male'
-            });
-            setIsOpen(true);
+    <div className="p-6">
+      <div className="bg-white rounded-lg shadow">
+        <Table 
+          dataSource={staffs} 
+          columns={columns}
+          pagination={{
+            pageSize: 10,
+            showTotal: (total, range) => (
+              <span className="text-gray-600">
+                {`${range[0]}-${range[1]} of ${total} staffs`}
+              </span>
+            )
           }}
-        >
-          Thêm nhân viên
-        </Button>
+          className="w-full"
+        />
       </div>
-
-      <Table 
-        dataSource={staffs} 
-        columns={columns}
-        loading={loading}
-        pagination={{
-          pageSize: 10,
-          showTotal: (total, range) => `${range[0]}-${range[1]} trên ${total} nhân viên`,
-          showSizeChanger: true,
-          showQuickJumper: true,
-        }}
-      />
 
       <Modal
         title={editingStaff ? "Cập nhật thông tin nhân viên" : "Thêm nhân viên mới"}
