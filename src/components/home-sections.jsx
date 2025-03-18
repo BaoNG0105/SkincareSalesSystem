@@ -1,11 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import { Swiper, SwiperSlide } from "swiper/react"; // import Swiper
 import { Autoplay, Navigation } from "swiper/modules"; // import Modules
 import "swiper/css"; // import CSS
 import "swiper/css/navigation"; // import Navigation
-import { getProduct } from '../services/api.product';
-import PropTypes from 'prop-types'; // Import PropTypes
-import { FaShoppingCart, FaMoneyBillWave } from "react-icons/fa"; // Add this import
+import { getProduct } from "../services/api.product";
+import PropTypes from "prop-types"; // Import PropTypes
 
 const ProductSection = ({ category }) => {
   const [products, setProducts] = useState([]);
@@ -16,8 +15,8 @@ const ProductSection = ({ category }) => {
     const fetchProducts = async () => {
       try {
         const response = await getProduct();
-        const filteredProducts = response.filter(product => 
-          product.category.toLowerCase() === category.toLowerCase()
+        const filteredProducts = response.filter(
+          (product) => product.category.toLowerCase() === category.toLowerCase()
         );
         setProducts(filteredProducts);
       } catch (error) {
@@ -49,19 +48,19 @@ const ProductSection = ({ category }) => {
           ) : (
             products.map((product) => (
               <SwiperSlide key={product.productId}>
-                <div 
+                <div
                   className="bg-white rounded-lg p-6 shadow-md hover:shadow-xl border border-gray-100 transition-all duration-300 transform hover:-translate-y-1"
                   onClick={() => {
                     window.location.href = `/product-detail/${product.productId}`;
                   }}
                 >
                   <div className="relative mb-4 flex justify-center group">
-                    <img 
-                      src={product.image} 
-                      alt={product.productName} 
+                    <img
+                      src={product.image}
+                      alt={product.productName}
                       className="h-48 object-contain transition-transform duration-300 group-hover:scale-110"
                     />
-                    {product.status === 'out_of_stock' && (
+                    {product.status === "out_of_stock" && (
                       <div className="absolute top-2 right-2 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-medium shadow-sm">
                         Out of Stock
                       </div>
@@ -71,25 +70,16 @@ const ProductSection = ({ category }) => {
                     {product.productName}
                   </h3>
                   <div className="text-xl font-bold text-[#C91F50] mb-4">
-                    {product.price.toLocaleString()}đ
+                    {product.price.toLocaleString()} ₫
                   </div>
                   <div className="space-y-3">
-                    <button 
-                      className="w-full py-2.5 px-4 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-800 flex items-center justify-center gap-2 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                      disabled={product.status === 'out_of_stock'}
+                    <button
+                      onClick={() =>
+                        (window.location.href = `/product-detail/${product.productId}`)
+                      }
+                      className="mt-4 w-full bg-gradient-to-r from-pink-600 to-purple-600 text-white py-2.5 rounded-lg hover:from-pink-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] font-medium"
                     >
-                      <FaShoppingCart className="w-5 h-5" />
-                      Add to Cart
-                    </button>
-                    <button 
-                      className="w-full bg-[#C91F50] text-white py-2.5 px-4 rounded-lg font-medium hover:bg-[#A41841] transition-colors duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                      onClick={() => {
-                        window.location.href = '/checkout';
-                      }}
-                      disabled={product.status === 'out_of_stock'}
-                    >
-                      <FaMoneyBillWave className="w-5 h-5" />
-                      Buy Now
+                      View details
                     </button>
                   </div>
                 </div>

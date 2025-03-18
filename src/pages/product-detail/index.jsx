@@ -1,10 +1,17 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getProductById, getRelatedProducts } from "../../services/api.product";
+import {
+  checkOrderId,
+  createOrderId,
+  addOrderItems,
+} from "../../services/api.order";
 import { toast } from "react-toastify";
 import { FaExchangeAlt, FaShoppingCart, FaMoneyBillWave } from "react-icons/fa";
 import { MdCompare } from "react-icons/md";
+import { jwtDecode } from "jwt-decode";
 
+//Hàm thêm sản phẩm vào giỏ hàng
 const ProductDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -16,11 +23,13 @@ const ProductDetailPage = () => {
     const saved = localStorage.getItem("compareProducts");
     return saved ? JSON.parse(saved) : [];
   });
+  const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
     localStorage.setItem("compareProducts", JSON.stringify(compareProducts));
   }, [compareProducts]);
 
+  //Hàm thêm sản phẩm vào so sánh
   const handleCompareToggle = (product) => {
     setCompareProducts((prev) => {
       const isProductInCompare = prev.some(
@@ -37,6 +46,7 @@ const ProductDetailPage = () => {
     });
   };
 
+  //Hàm lấy sản phẩm
   useEffect(() => {
     const fetchProduct = async () => {
       try {
@@ -59,6 +69,46 @@ const ProductDetailPage = () => {
     fetchProduct();
   }, [id]);
 
+  //Hàm thêm sản phẩm vào giỏ hàng
+  const handleAddToCart = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        toast.error("Please log in to add items to your cart.");
+        return;
+      }
+
+      const decoded = jwtDecode(token);
+      const customerId = decoded.id;
+
+      // Step 1: Check if orderId exists
+      let order = await checkOrderId(customerId);
+
+      // Step 2: If no orderId, create a new one
+      if (!order || order.status !== "PENDING") {
+        order = await createOrderId({
+          userId: customerId,
+          totalPrice: 0,
+        });
+      }
+
+      // Step 3: Add product to cart
+      await addOrderItems({
+        orderId: order.orderId,
+        productId: product.productId,
+        quantity: quantity,
+        unitPrice: product.price,
+        discountAmount: 0,
+      });
+
+      toast.success("Product added to cart!");
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+      toast.error("Failed to add product to cart.");
+    }
+  };
+
+  //Hàm hiển thị loading
   if (loading)
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
@@ -82,6 +132,7 @@ const ProductDetailPage = () => {
       </div>
     );
 
+  //Hàm hiển thị sản phẩm không tồn tại
   if (!product)
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -118,7 +169,7 @@ const ProductDetailPage = () => {
           <div className="space-y-6">
             <h1 className="text-3xl font-bold">{product.productName}</h1>
             <p className="text-2xl font-bold text-red-600">
-              {product.price.toLocaleString()} VND
+              {product.price.toLocaleString()} ₫
             </p>
 
             <hr className="border-gray-200" />
@@ -148,6 +199,47 @@ const ProductDetailPage = () => {
               </span>
             </div>
 
+            {/* Quantity */}
+            <div className="flex items-center gap-4 mb-4">
+              <span>Quantity:</span>
+              <div className="flex items-center border rounded-lg">
+                <button
+                  onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
+                  className="px-3 py-1 border-r hover:bg-gray-200"
+                  disabled={quantity <= 1}
+                >
+                  -
+                </button>
+                <input
+                  type="number"
+                  min="1"
+                  max={product.stockQuantity}
+                  value={quantity}
+                  onChange={(e) =>
+                    setQuantity(
+                      Math.min(
+                        product.stockQuantity,
+                        Math.max(1, parseInt(e.target.value) || 1)
+                      )
+                    )
+                  }
+                  className="w-15 text-center focus:outline-none"
+                />
+                <button
+                  onClick={() =>
+                    setQuantity((prev) =>
+                      Math.min(product.stockQuantity, prev + 1)
+                    )
+                  }
+                  className="px-3 py-1 border-l hover:bg-gray-200"
+                  disabled={quantity >= product.stockQuantity}
+                >
+                  +
+                </button>
+              </div>
+            </div>
+
+            {/* Compare */}
             <div className="space-y-3">
               <button
                 onClick={() => handleCompareToggle(product)}
@@ -173,7 +265,9 @@ const ProductDetailPage = () => {
                 </button>
               )}
 
+              {/* Add to Cart */}
               <button
+                onClick={handleAddToCart}
                 disabled={!product.status}
                 className="w-full py-2.5 px-4 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-800 flex items-center justify-center gap-2 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
@@ -181,6 +275,7 @@ const ProductDetailPage = () => {
                 Add to Cart
               </button>
 
+              {/* Buy Now */}
               <button
                 disabled={!product.status}
                 className="w-full py-2.5 px-4 rounded-lg bg-pink-600 hover:bg-pink-700 text-white flex items-center justify-center gap-2 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"

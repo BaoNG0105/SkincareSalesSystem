@@ -13,6 +13,7 @@ import HomePage from "./pages/home/index.jsx";
 import SkinTestPage from "./pages/skinTest/index.jsx";
 import Routine from "./pages/routine/index.jsx";
 import LocationPage from "./pages/location/index.jsx";
+import CartPage from "./pages/cart/index.jsx";
 import AboutPage from "./pages/about/index.jsx";
 import BlogPage from "./pages/blog/index.jsx";
 import CleanserPage from "./pages/product/cleanser/index.jsx";
@@ -127,6 +128,18 @@ const router = createBrowserRouter([
       {
         path: "/category",
         element: <CategoryPage />,
+      },
+    ],
+  },
+
+  //Cart Page
+  {
+    path: "/cart",
+    element: <MainLayout />,
+    children: [
+      { 
+        path: "/cart",
+        element: <CartPage />,
       },
     ],
   },

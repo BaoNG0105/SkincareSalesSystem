@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import api from "../config/axios";
 import PropTypes from "prop-types";
-import { FaShoppingCart, FaMoneyBillWave } from "react-icons/fa";
 
 const ProductSection = ({ category }) => {
   const [products, setProducts] = useState([]);
@@ -78,7 +77,7 @@ const ProductSection = ({ category }) => {
                 </h3>
 
                 <div className="text-xl font-bold text-[#C91F50] mb-2">
-                  {product.price.toLocaleString()}đ
+                  {product.price.toLocaleString()} ₫
                 </div>
 
                 <div className="flex items-center gap-2 mb-4">
@@ -90,27 +89,12 @@ const ProductSection = ({ category }) => {
 
                 <div className="space-y-3">
                   <button
-                    className="w-full py-2.5 px-4 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-800 flex items-center justify-center gap-2 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                    disabled={product.status === "out_of_stock"}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      // Add your cart logic here
-                    }}
+                    onClick={() =>
+                      (window.location.href = `/product-detail/${product.productId}`)
+                    }
+                    className="mt-4 w-full bg-gradient-to-r from-pink-600 to-purple-600 text-white py-2.5 rounded-lg hover:from-pink-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] font-medium"
                   >
-                    <FaShoppingCart className="w-5 h-5" />
-                    Add to Cart
-                  </button>
-
-                  <button
-                    className="w-full bg-[#C91F50] text-white py-2.5 px-4 rounded-lg font-medium hover:bg-[#A41841] transition-colors duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                    disabled={product.status === "out_of_stock"}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      window.location.href = "/checkout";
-                    }}
-                  >
-                    <FaMoneyBillWave className="w-5 h-5" />
-                    Buy Now
+                    View details
                   </button>
                 </div>
               </div>
