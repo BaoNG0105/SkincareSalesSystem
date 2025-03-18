@@ -154,7 +154,7 @@ const Routine = () => {
                                             </p>
                                         )}
                                         <button 
-                                            onClick={() => window.location.href = `/products/${recommendation.product.productId}`}
+                                            onClick={() => window.location.href = `/product-detail/${recommendation.product.productId}`}
                                             className="mt-4 w-full bg-gradient-to-r from-pink-600 to-purple-600 text-white py-2.5 rounded-lg hover:from-pink-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] font-medium"
                                         >
                                             Xem chi tiết

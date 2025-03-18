@@ -8,7 +8,7 @@ import {
   message 
 } from 'antd';
 import React, { useState, useEffect } from 'react';
-import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { DeleteOutlined } from '@ant-design/icons';
 import api from '../../../config/axios';
 
 function CustomerPage() {
@@ -16,7 +16,6 @@ function CustomerPage() {
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [editingCustomer, setEditingCustomer] = useState(null);
   const [form] = Form.useForm();
 
   useEffect(() => {
@@ -56,39 +55,58 @@ function CustomerPage() {
     }
   };
 
-  const handleUpdate = async (values) => {
+  const handleAdd = async (values) => {
     try {
-      const response = await api.put(`/users/${values.id}`, {
-        ...values,
-        role: 'Customer'
-      });
-      if (response.data) {
-        setCustomers(customers.map(customer => 
-          customer.id === values.id ? { 
-            ...response.data, 
-            key: response.data.id.toString(),
-            status: mapStatus(response.data.status),
-            gender: mapGender(response.data.gender)
-          } : customer
-        ));
-        setIsOpen(false);
-        setEditingCustomer(null);
-        message.success('Update successful');
+      if (!values.email || !values.passwordHash || !values.userName) {
+        message.error('Vui lòng điền đầy đủ thông tin bắt buộc!');
+        return;
       }
-    } catch (err) {
-      console.error('Error updating customer:', err);
-      message.error('Unable to update customer');
+
+      const submitData = {
+        email: values.email.trim(),
+        passwordHash: values.passwordHash,
+        userName: values.userName.trim(),
+        gender: values.gender || "",
+        dateOfBirth: values.dateOfBirth || "",
+        address: values.address?.trim() || "",
+        phoneNumber: values.phoneNumber?.trim() || "",
+        profileImage: values.profileImage?.trim() || ""
+      };
+
+      const response = await api.post('auth/register', submitData);
+      if (response.data) {
+        const newCustomer = {
+          ...response.data,
+          key: response.data.id.toString(),
+          status: mapStatus(response.data.status),
+          gender: mapGender(response.data.gender)
+        };
+        setCustomers([...customers, newCustomer]);
+        setIsOpen(false);
+        form.resetFields();
+        message.success('Thêm khách hàng thành công');
+        fetchCustomers();
+      } else {
+        message.error('Không thể thêm khách hàng');
+      }
+    } catch (error) {
+      console.error('Error adding customer:', error);
+      message.error('Không thể thêm khách hàng: ' + error.message);
     }
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (userId) => {
     try {
-      await api.delete(`/users/${id}`);
-      setCustomers(customers.filter(customer => customer.id !== id));
-      message.success('Delete successful');
+      const response = await api.delete(`/users/${userId}`);
+      if (response.status === 200) {
+        setCustomers(prevCustomers => 
+          prevCustomers.filter(customer => customer.id !== userId)
+        );
+        message.success('Xóa khách hàng thành công');
+      }
     } catch (err) {
-      console.error('Error deleting customer:', err);
-      message.error('Unable to delete customer');
+      console.error('Lỗi khi xóa khách hàng:', err);
+      message.error(err.response?.data || 'Không thể xóa khách hàng');
     }
   };
 
@@ -97,7 +115,13 @@ function CustomerPage() {
       title: 'Avatar',
       dataIndex: 'profileImage',
       key: 'profileImage',
-      render: (text) => <img src={text} alt="avatar" style={{ width: 50, height: 50, borderRadius: '50%' }} />
+      render: (text) => (
+        <img 
+          src={text} 
+          alt="avatar" 
+          className="w-12 h-12 rounded-full object-cover"
+        />
+      )
     },
     {
       title: 'Full Name',
@@ -162,10 +186,7 @@ function CustomerPage() {
       dataIndex: 'status',
       key: 'status',
       render: (status) => (
-        <span style={{ 
-          color: status === 'Active' ? 'green' : 'red',
-          fontWeight: 'bold'
-        }}>
+        <span className={`font-bold ${status === 'Active' ? 'text-green-500' : 'text-red-500'}`}>
           {status}
         </span>
       )
@@ -174,25 +195,24 @@ function CustomerPage() {
       title: 'Actions',
       key: 'actions',
       render: (_, record) => (
-        <span>
-          <Button 
-            icon={<EditOutlined />} 
-            onClick={() => {
-              setEditingCustomer(record);
-              form.setFieldsValue({
-                ...record,
-                dateOfBirth: record.dateOfBirth ? record.dateOfBirth.split('T')[0] : '',
-              });
-              setIsOpen(true);
-            }}
-            style={{ marginRight: 8 }}
-          />
+        <div className="flex gap-2">
           <Button 
             icon={<DeleteOutlined />} 
-            onClick={() => handleDelete(record.id)} 
-            danger 
+            danger
+            onClick={() => {
+              Modal.confirm({
+                title: 'Bạn có chắc chắn muốn xóa khách hàng này?',
+                content: 'Hành động này không thể hoàn tác.',
+                okText: 'Có',
+                okType: 'danger',
+                cancelText: 'Không',
+                onOk: () => {
+                  handleDelete(record.id);
+                },
+              });
+            }}
           />
-        </span>
+        </div>
       ),
     }
   ];
@@ -201,45 +221,57 @@ function CustomerPage() {
   if (error) return <div className="text-center py-8 text-red-600">{error}</div>;
 
   return (
-    <div>
-      <Table 
-        dataSource={customers} 
-        columns={columns}
-        pagination={{
-          pageSize: 10,
-          showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} customers`
+    <div className="p-6">
+      <Button 
+        type="primary" 
+        onClick={() => {
+          setIsOpen(true);
+          form.resetFields();
         }}
-      />
+        className="mb-4"
+      >
+        Add New Customer
+      </Button>
+      
+      <div className="bg-white rounded-lg shadow">
+        <Table 
+          dataSource={customers} 
+          columns={columns}
+          pagination={{
+            pageSize: 10,
+            showTotal: (total, range) => (
+              <span className="text-gray-600">
+                {`${range[0]}-${range[1]} of ${total} customers`}
+              </span>
+            )
+          }}
+          className="w-full"
+        />
+      </div>
+
       <Modal
-        title="Edit Customer Information"
+        title={<h3 className="text-lg font-semibold">Add New Customer</h3>}
         open={isOpen}
         onCancel={() => {
           setIsOpen(false);
-          setEditingCustomer(null);
           form.resetFields();
         }}
         onOk={() => {
           form.validateFields()
             .then(values => {
-              handleUpdate(values);
+              handleAdd(values);
             })
             .catch(info => {
               console.log('Validation Failed:', info);
             });
         }}
+        className="max-w-2xl"
       >
         <Form
           form={form}
           layout="vertical"
-          initialValues={editingCustomer}
+          className="mt-4"
         >
-          <Form.Item 
-            label="Full Name" 
-            name="userName"
-            rules={[{ required: true, message: 'Please enter full name!' }]}
-          >
-            <Input />
-          </Form.Item>
           <Form.Item 
             label="Email" 
             name="email"
@@ -251,9 +283,22 @@ function CustomerPage() {
             <Input />
           </Form.Item>
           <Form.Item 
+            label="Password" 
+            name="passwordHash"
+            rules={[{ required: true, message: 'Please enter password!' }]}
+          >
+            <Input.Password />
+          </Form.Item>
+          <Form.Item 
+            label="Full Name" 
+            name="userName"
+            rules={[{ required: true, message: 'Please enter full name!' }]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item 
             label="Phone" 
             name="phoneNumber"
-            rules={[{ required: true, message: 'Please enter phone number!' }]}
           >
             <Input />
           </Form.Item>
@@ -279,24 +324,9 @@ function CustomerPage() {
             <Input type="date" />
           </Form.Item>
           <Form.Item 
-            label="Status" 
-            name="status"
-          >
-            <Select>
-              <Select.Option value={true}>Active</Select.Option>
-              <Select.Option value={false}>Inactive</Select.Option>
-            </Select>
-          </Form.Item>
-          <Form.Item 
-            label="Balance" 
-            name="money"
-          >
-            <Input type="number" />
-          </Form.Item>
-          <Form.Item 
             label="Avatar" 
             name="profileImage"
-          >
+          > 
             <Input />
           </Form.Item>
         </Form>

@@ -1,7 +1,7 @@
 import { Button, Modal, Table, Form, Input, Avatar, message } from 'antd';
 import { useState, useEffect } from 'react';
 import { EditOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
-import axios from 'axios';
+import { getProduct, postProduct, updateProduct, deleteProduct } from '../../../services/api.product';
 
 function ProductPage() {
   const [isOpen, setIsOpen] = useState(false);
@@ -17,24 +17,23 @@ function ProductPage() {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:8080/api/products');
-      console.log('API Response:', response.data);
+      const data = await getProduct();
       
-      const formattedProducts = response.data.map(product => ({
+      const formattedProducts = data.map(product => ({
         key: product.productId,
         productId: product.productId,
         productName: product.productName,
-        quantity: product.quantity,
+        quantity: product.stockQuantity,
         price: product.price,
         description: product.description,
         category: product.category,
-        image: product.image
+        image: product.image,
+        status: product.status
       }));
       
       setProducts(formattedProducts);
     } catch (error) {
       console.error('Error fetching products:', error);
-      message.error('Unable to load products');
     } finally {
       setLoading(false);
     }
@@ -43,48 +42,68 @@ function ProductPage() {
   const handleAdd = async (product) => {
     try {
       if (!product.productName || !product.price || !product.category || !product.quantity) {
-        message.error('Vui lòng điền đầy đủ thông tin bắt buộc');
+        message.error('Please fill in all required fields');
         return;
       }
 
       if (product.price < 0 || product.quantity < 0) {
-        message.error('Giá và số lượng không được âm');
+        message.error('Price and quantity cannot be negative');
         return;
       }
 
-      const response = await axios.post('http://localhost:8080/api/products', {
+      const submitData = {
         productName: product.productName.trim(),
-        quantity: parseInt(product.quantity),
-        price: parseFloat(product.price),
         description: product.description?.trim() || '',
         category: product.category.trim(),
-        image: product.image?.trim() || ''
-      });
+        price: parseFloat(product.price),
+        stockQuantity: parseInt(product.quantity),
+        image: product.image?.trim() || '',
+        status: true,
+        faqs: []
+      };
 
-      if (response.status === 201 || response.status === 200) {
-        message.success('Thêm sản phẩm thành công');
-        setIsOpen(false);
-        form.resetFields();
-        fetchProducts();
-      }
+      await postProduct(submitData);
+      message.success('Product added successfully');
+      setIsOpen(false);
+      form.resetFields();
+      fetchProducts();
     } catch (error) {
-      console.error('Lỗi khi thêm sản phẩm:', error);
-      message.error('Không thể thêm sản phẩm: ' + (error.response?.data?.message || error.message));
+      console.error('Error adding product:', error);
     }
   };
 
   const handleUpdate = async (updatedProduct) => {
     try {
-      await axios.put(`http://localhost:8080/api/products/${updatedProduct.productId}`, {
-        productName: updatedProduct.productName,
-        quantity: updatedProduct.quantity,
-        price: updatedProduct.price,
-        description: updatedProduct.description,
-        category: updatedProduct.category,
-        image: updatedProduct.image
-      });
-      message.success('Product updated successfully');
-      fetchProducts();
+      if (!updatedProduct.productName || !updatedProduct.price || !updatedProduct.category || !updatedProduct.quantity) {
+        message.error('Please fill in all required fields');
+        return;
+      }
+
+      if (updatedProduct.price < 0 || updatedProduct.quantity < 0) {
+        message.error('Price and quantity cannot be negative');
+        return;
+      }
+
+      const submitData = {
+        productName: updatedProduct.productName.trim(),
+        description: updatedProduct.description?.trim() || 'string',
+        category: updatedProduct.category.trim(),
+        price: parseFloat(updatedProduct.price),
+        stockQuantity: parseInt(updatedProduct.quantity),
+        image: updatedProduct.image?.trim() || 'string'
+      };
+
+      const response = await updateProduct(updatedProduct.productId, submitData);
+      
+      if (response) {
+        message.success('Product updated successfully');
+        setIsOpen(false);
+        setEditingProduct(null);
+        form.resetFields();
+        fetchProducts();
+      } else {
+        message.error('Failed to update product');
+      }
     } catch (error) {
       console.error('Error updating product:', error);
       message.error('Failed to update product');
@@ -92,14 +111,29 @@ function ProductPage() {
   };
 
   const handleDelete = async (productId) => {
-    try {
-      await axios.delete(`http://localhost:8080/api/products/${productId}`);
-      message.success('Product deleted successfully');
-      fetchProducts();
-    } catch (error) {
-      console.error('Error deleting product:', error);
-      message.error('Failed to delete product');
-    }
+    Modal.confirm({
+      title: 'Delete Product',
+      content: 'Are you sure you want to delete this product? This action cannot be undone.',
+      okText: 'Yes',
+      okType: 'danger',
+      cancelText: 'No',
+      maskClosable: true,
+      centered: true,
+      onOk: async () => {
+        try {
+          const response = await deleteProduct(productId);
+          if (response) {
+            message.success('Product deleted successfully');
+            fetchProducts();
+          } else {
+            message.error('Failed to delete product');
+          }
+        } catch (error) {
+          console.error('Error deleting product:', error);
+          message.error('Failed to delete product');
+        }
+      }
+    });
   };
 
   const columns = [
@@ -201,6 +235,10 @@ function ProductPage() {
           setEditingProduct(null);
           form.resetFields();
         }}
+        okText="Save"
+        cancelText="Cancel"
+        maskClosable={false}
+        destroyOnClose={true}
         onOk={() => {
           form.validateFields()
             .then(values => {
@@ -214,9 +252,6 @@ function ProductPage() {
               } else {
                 handleAdd(productData);
               }
-              setIsOpen(false);
-              setEditingProduct(null);
-              form.resetFields();
             })
             .catch(info => {
               console.log('Validation Failed:', info);
@@ -267,7 +302,14 @@ function ProductPage() {
             name="quantity"
             rules={[
               { required: true, message: 'Please enter quantity!' },
-              { type: 'number', min: 0, message: 'Quantity must be greater than or equal to 0!' }
+              { 
+                validator: (_, value) => {
+                  if (value >= 0) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject('Quantity must be greater than or equal to 0!');
+                }
+              }
             ]}
           >
             <Input type="number" min={0} />
@@ -276,7 +318,6 @@ function ProductPage() {
           <Form.Item 
             label="Image URL" 
             name="image"
-            rules={[{ type: 'url', message: 'Please enter a valid URL!' }]}
           >
             <Input placeholder="Enter image URL" />
           </Form.Item>
