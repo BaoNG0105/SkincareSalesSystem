@@ -1,6 +1,7 @@
 package com.example.demo.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -22,12 +23,11 @@ public class OrderItem {
 
     @ManyToOne
     @JoinColumn(name = "order_id", nullable = false)
-    @JsonIgnore
+    @JsonIgnoreProperties({"customer", "orderItems"})
     private Order order;
 
     @ManyToOne
     @JoinColumn(name = "product_id", nullable = false)
-    @JsonIgnore
     private Product product;
 
     @Column(nullable = false)
