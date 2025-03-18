@@ -8,6 +8,7 @@ import com.example.demo.dto.UserRequest;
 import com.example.demo.entity.Product;
 import com.example.demo.entity.User;
 import com.example.demo.service.UserService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,6 +21,7 @@ import java.util.Optional;
 @CrossOrigin(origins = "http://localhost:5173") // Thêm port của frontend vào đây
 @RestController
 @RequestMapping("/api/users")
+//@SecurityRequirement(name = "api")
 public class UserController {
 
     @Autowired
