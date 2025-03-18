@@ -205,9 +205,9 @@ function Header() {
                 {/* Dropdown Menu */}
                 {showAuthOptions && (
                   <div
-                    className="absolute right-0 mt-2 w-56 bg-white/95 backdrop-blur-sm 
+                    className="absolute right-0 w-56 bg-white/95 backdrop-blur-sm 
                     rounded-2xl shadow-lg border border-pink-100 overflow-hidden transform 
-                    transition-all duration-300 ease-out z-50"
+                    transition-all duration-300 ease-out z-50 top-[calc(100%-5px)]"
                   >
                     <div className="p-4 bg-gradient-to-r from-pink-100/50 to-pink-50/50">
                       <h3 className="text-pink-600 font-semibold text-lg mb-1">
