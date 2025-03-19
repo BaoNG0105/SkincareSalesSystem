@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { FaTrash } from "react-icons/fa";
 import { Link } from "react-router-dom";
-import { getOrderByUserId, updateOrderItems, deleteOrderItemsByOrderItemId } from "../../services/api.order";
+import { getOrderIdAndStatusByUserId, updateOrderItems, deleteOrderItemsByOrderItemId } from "../../services/api.order";
 import { jwtDecode } from "jwt-decode";
 import { toast } from "react-toastify";
 
@@ -19,7 +19,7 @@ function CartPage() {
       const decoded = jwtDecode(token);
       const userId = decoded.id;
       try {
-        const orderData = await getOrderByUserId(userId);
+        const orderData = await getOrderIdAndStatusByUserId(userId);
         if (orderData && orderData.length > 0) {
           // Lọc ra các order có orderItems chưa bị xóa (deleted: false)
           const filteredOrders = orderData.map(order => ({
@@ -93,36 +93,30 @@ function CartPage() {
       // Gọi API để xóa order item
       await deleteOrderItemsByOrderItemId(item.orderItemId);
 
-      // Cập nhật state local sau khi xóa
-      setOrders(orders.map(order => {
-        if (order.orderId === item.orderId) {
-          // Lọc bỏ item đã xóa và cập nhật tổng giá của order
-          const updatedOrderItems = order.orderItems.filter(
-            orderItem => orderItem.orderItemId !== item.orderItemId
-          );
-          
-          return {
-            ...order,
-            orderItems: updatedOrderItems,
-            // Tính lại tổng giá sau khi xóa item
-            totalPrice: updatedOrderItems.reduce(
-              (total, orderItem) => total + (orderItem.quantity * orderItem.product.price),
-              0
-            )
-          };
-        }
-        return order;
-      }));
+      // Lấy token và userId
+      const token = localStorage.getItem("token");
+      if (!token) return;
+      const decoded = jwtDecode(token);
+      const userId = decoded.id;
 
-      // Kiểm tra nếu không còn item nào trong orders
-      const updatedOrders = orders.map(order => ({
-        ...order,
-        orderItems: order.orderItems.filter(
-          orderItem => orderItem.orderItemId !== item.orderItemId
-        )
-      }));
+      // Fetch lại danh sách orders sau khi xóa
+      const orderData = await getOrderIdAndStatusByUserId(userId);
+      if (orderData && orderData.length > 0) {
+        // Lọc ra các order có orderItems chưa bị xóa (deleted: false)
+        const filteredOrders = orderData.map(order => ({
+          ...order,
+          orderItems: order.orderItems.filter(item => !item.deleted),
+          totalPrice: order.orderItems
+            .filter(item => !item.deleted)
+            .reduce((total, item) => total + (item.quantity * item.product.price), 0)
+        }));
 
-      if (updatedOrders.every(order => order.orderItems.length === 0)) {
+        // Kiểm tra xem còn item nào không
+        const hasItems = filteredOrders.some(order => order.orderItems.length > 0);
+        
+        setOrders(filteredOrders);
+        setIsCartEmpty(!hasItems);
+      } else {
         setIsCartEmpty(true);
       }
 

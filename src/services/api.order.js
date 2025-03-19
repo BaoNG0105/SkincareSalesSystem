@@ -1,11 +1,10 @@
 import api from "../config/axios";
 import { toast } from "react-toastify";
 
-// API check orderId & status is "PENDING"
-export const checkOrderId = async (customerId) => {
+export const getOrderIdAndStatusByUserId = async (customerId) => {
   try {
     const response = await api.get(`order/${customerId}/status`, {
-      params: { status: "pending" },
+      params: { status: "PENDING" },
     });
     return response.data;
   } catch (error) {
@@ -14,7 +13,7 @@ export const checkOrderId = async (customerId) => {
 };
 
 // API create orderId (if orderId is not exist)
-export const createOrderId = async (submitData) => {
+export const postOrderId = async (submitData) => {
   try {
     const response = await api.post("order", submitData);
     return response.data;
@@ -24,19 +23,9 @@ export const createOrderId = async (submitData) => {
 };
 
 // API add order-items to add product to cart
-export const addOrderItems = async (submitData) => {
+export const postOrderItems = async (submitData) => {
   try {
     const response = await api.post("order-items", submitData);
-    return response.data;
-  } catch (error) {
-    toast.error(error.response.data);
-  }
-};
-
-// API get order by userId 
-export const getOrderByUserId = async (customerId) => {
-  try {
-    const response = await api.get(`order/customer/${customerId}`);
     return response.data;
   } catch (error) {
     toast.error(error.response.data);

@@ -2,9 +2,9 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getProductById, getRelatedProducts } from "../../services/api.product";
 import {
-  checkOrderId,
-  createOrderId,
-  addOrderItems,
+  getOrderIdAndStatusByUserId,
+  postOrderId,
+  postOrderItems,
 } from "../../services/api.order";
 import { toast } from "react-toastify";
 import { FaExchangeAlt, FaShoppingCart, FaMoneyBillWave } from "react-icons/fa";
@@ -77,34 +77,56 @@ const ProductDetailPage = () => {
         toast.error("Please log in to add items to your cart.");
         return;
       }
-
+      // Giải mã token để lấy customerId
       const decoded = jwtDecode(token);
       const customerId = decoded.id;
 
-      // Step 1: Check if orderId exists
-      let order = await checkOrderId(customerId);
-
-      // Step 2: If no orderId, create a new one
-      if (!order || order.status !== "PENDING") {
-        order = await createOrderId({
+      // Step 1: Check if orderId exists and status is PENDING
+      const order = await getOrderIdAndStatusByUserId(customerId);
+      console.log("Existing order:", order);
+      // Step 2: If no orderId exists, create a new one
+      if (!order) {
+        const newOrder = await postOrderId({
           userId: customerId,
           totalPrice: 0,
         });
-      }
+        await postOrderItems({
+          orderId: newOrder.orderId,
+          productId: product.productId,
+          quantity: quantity,
+          unitPrice: product.price,
+          discountAmount: 0,
+        });
+      } else {
+        // Kiểm tra order có tồn tại và có phần tử không
+        if (!order || !order[0]) {
+          throw new Error("Invalid order data");
+        }
 
-      // Step 3: Add product to cart
-      await addOrderItems({
-        orderId: order.orderId,
-        productId: product.productId,
-        quantity: quantity,
-        unitPrice: product.price,
-        discountAmount: 0,
-      });
+        await postOrderItems({
+          orderId: order[0].orderId,
+          productId: product.productId,
+          quantity: quantity,
+          unitPrice: product.price,
+          discountAmount: 0,
+        });
+      }
 
       toast.success("Product added to cart!");
     } catch (error) {
       console.error("Error adding to cart:", error);
       toast.error("Failed to add product to cart.");
+    }
+  };
+
+  //Hàm xử lý mua ngay
+  const handleBuyNow = async () => {
+    try {
+      await handleAddToCart(); // Thêm vào giỏ hàng trước
+      navigate("/cart"); // Sau đó chuyển đến trang giỏ hàng
+    } catch (error) {
+      console.error("Error processing buy now:", error);
+      toast.error("Failed to process purchase.");
     }
   };
 
@@ -277,6 +299,7 @@ const ProductDetailPage = () => {
 
               {/* Buy Now */}
               <button
+                onClick={handleBuyNow}
                 disabled={!product.status}
                 className="w-full py-2.5 px-4 rounded-lg bg-pink-600 hover:bg-pink-700 text-white flex items-center justify-center gap-2 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
