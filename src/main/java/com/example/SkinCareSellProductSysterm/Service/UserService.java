@@ -56,6 +56,31 @@ public class UserService {
         user.setPasswordHash(encodedPassword);
 
 
+        user.setRole(Role.Customer);
+        user.setGender(registerRequest.getGender());
+        user.setDateOfBirth(registerRequest.getDateOfBirth());
+        user.setAddress(registerRequest.getAddress());
+        user.setPhoneNumber(registerRequest.getPhoneNumber());
+        user.setProfileImage(registerRequest.getProfileImage());
+        user.setMoney(BigDecimal.ZERO);
+
+        User newUser = userRepository.save(user);
+        return newUser;
+    }
+
+    public User registerStaff(RegisterRequest registerRequest) {
+        // Mã hoá password
+        String encodedPassword = passwordEncoder.encode(registerRequest.getPasswordHash());
+
+        // Tạo user
+        User user = new User();
+
+
+        user.setUserName(registerRequest.getUserName());
+        user.setEmail(registerRequest.getEmail());
+        user.setPasswordHash(encodedPassword);
+
+        user.setRole(Role.Staff);
         user.setGender(registerRequest.getGender());
         user.setDateOfBirth(registerRequest.getDateOfBirth());
         user.setAddress(registerRequest.getAddress());
@@ -77,8 +102,6 @@ public class UserService {
 
         // Cập nhật thông tin
 
-        String encodedPassword = passwordEncoder.encode(userDetails.getPasswordHash());
-        user.setPasswordHash(encodedPassword);
 
 
         user.setGender(userDetails.getGender());
