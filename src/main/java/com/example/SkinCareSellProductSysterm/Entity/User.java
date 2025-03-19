@@ -42,7 +42,7 @@ public class User implements UserDetails {
     // Dùng enum Role, lưu kiểu String trong DB
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
-    private Role role = Role.Customer;
+    private Role role;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();

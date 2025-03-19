@@ -6,15 +6,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public class UserRequest {
-
-
-
-
-
-    @Column(name = "password_hash", nullable = false, columnDefinition = "TEXT")
-    private String passwordHash;  // TEXT NOT NULL
-
-
     // gender ENUM('Male','Female') DEFAULT NULL
     @Column(name = "gender")
     private String gender;
@@ -35,20 +26,7 @@ public class UserRequest {
     @Column(name = "money", nullable = false, columnDefinition = "DECIMAL(18,2) DEFAULT 0")
     private BigDecimal money = BigDecimal.ZERO;
 
-
-
     // Getter and Setter
-
-
-    public String getPasswordHash() {
-        return passwordHash;
-    }
-
-    public void setPasswordHash(String passwordHash) {
-        this.passwordHash = passwordHash;
-    }
-
-
 
 
     public String getGender() {
