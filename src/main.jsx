@@ -36,6 +36,8 @@ import StaffPage from "./pages/dashboard/staff/index.jsx";
 import OrderPage from "./pages/dashboard/order/index.jsx";
 import CustomerPage from "./pages/dashboard/customer/index.jsx";
 import ProductComparePage from "./pages/product-compare/index.jsx";
+import OverviewPage from "./pages/dashboard/overview/index.jsx";
+
 
 //Single Page Application
 //Client side rendering
@@ -383,7 +385,17 @@ const router = createBrowserRouter([
       },
     ],
   },
-
+   //Mangage overview
+   {
+    path: "/dashboard",
+    element: <Dashboard />,
+    children: [
+      {
+        path: "/dashboard/overview",
+        element: <OverviewPage />,
+      },
+    ],
+  },
 ]);
 
 createRoot(document.getElementById("root")).render(

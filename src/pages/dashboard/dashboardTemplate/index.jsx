@@ -9,6 +9,12 @@ const Dashboard = () => {
         <nav>
           <ul>
             <li className="p-4 hover:bg-pink-200">
+              <a href="/dashboard/overview" className="flex items-center">
+                <span className="material-icons">bar_chart</span>
+                <span className="ml-2">Overview</span>
+              </a>
+            </li>
+            <li className="p-4 hover:bg-pink-200">
               <a href="/dashboard/product" className="flex items-center">
                 <span className="material-icons">inventory</span>
                 <span className="ml-2">Product</span>
