@@ -7,9 +7,8 @@ import java.time.LocalDate;
 @Getter
 @Setter
 public class RegisterRequest {
-    private String userid;
     private String email;
-    private String password;
+    private String passwordHash;
     private String userName;
     private String role;
     private String gender; // Male, Female, Other
@@ -22,13 +21,9 @@ public class RegisterRequest {
         return email;
     }
 
-    public String getPassword() {
-        return password;
-    }
 
-    public String getUserid() {
-        return userid;
-    }
+
+
     public String getUserName() {
         return userName;
     }
@@ -57,5 +52,28 @@ public class RegisterRequest {
         return profileImage;
     }
 // Getters and Setters
+
+    public String getPasswordHash() {
+        return passwordHash;
+    }
+
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
+    }
+
+    @Override
+    public String toString() {
+        return "RegisterRequest{" +
+                "email='" + email + '\'' +
+                ", passwordHash='" + passwordHash + '\'' +
+                ", userName='" + userName + '\'' +
+                ", role='" + role + '\'' +
+                ", gender='" + gender + '\'' +
+                ", dateOfBirth=" + dateOfBirth +
+                ", address='" + address + '\'' +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                ", profileImage='" + profileImage + '\'' +
+                '}';
+    }
 }
 
