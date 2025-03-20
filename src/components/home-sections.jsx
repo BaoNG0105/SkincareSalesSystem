@@ -85,7 +85,7 @@ const ProductSection = ({ category }) => {
                       onClick={() =>
                         (window.location.href = `/product-detail/${product.productId}`)
                       }
-                      className="mt-4 w-full bg-gradient-to-r from-pink-600 to-purple-600 text-white py-2.5 rounded-lg hover:from-pink-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] font-medium"
+                      className="mt-4 w-full bg-gradient-to-r bg-pink-600 text-white py-2.5 rounded-lg hover:bg-pink-800 transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] font-medium"
                     >
                       View details
                     </button>

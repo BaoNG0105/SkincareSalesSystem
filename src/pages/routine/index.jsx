@@ -26,6 +26,7 @@ const Routine = () => {
         setRoutineData(routineData);
         setRecommendedProducts(productsData);
       } catch (error) {
+        console.error("Error fetching routine data:", error);
         toast.error("Can not load data.");
       } finally {
         setLoading(false);
@@ -52,7 +53,7 @@ const Routine = () => {
         <div className="container mx-auto px-4 py-6">
           <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-600 to-purple-600 text-center flex items-center justify-center gap-2">
             <MdFace className="text-4xl" />
-            Your Personalized Skincare Routine
+            Skincare Routine for {routineData[0]?.skinType?.skinType}
           </h1>
         </div>
       </header>
@@ -133,7 +134,7 @@ const Routine = () => {
             <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
               <BsCheckCircleFill className="text-pink-600" />
               <span className="bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
-                Sản phẩm được đề xuất cho loại da{" "}
+                Recommended Products for{" "}
                 {recommendedProducts[0]?.skinType?.skinType}
               </span>
             </h2>
@@ -168,6 +169,12 @@ const Routine = () => {
                         {recommendation.product.price.toLocaleString()}đ
                       </p>
                     )}
+                    <div className="flex items-center gap-2 mb-4">
+                      <span className="text-sm text-gray-600">Available:</span>
+                      <span className="px-2 py-1 rounded text-sm bg-blue-100 text-blue-800">
+                        {recommendation.product.stockQuantity} items
+                      </span>
+                    </div>
                     <button
                       onClick={() =>
                         (window.location.href = `/product-detail/${recommendation.product.productId}`)
