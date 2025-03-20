@@ -77,33 +77,39 @@ function CustomerPage() {
           alt="avatar" 
           className="w-12 h-12 rounded-full object-cover"
         />
-      )
+      ),
+      className: 'whitespace-nowrap'
     },
     {
       title: 'Full Name',
       dataIndex: 'userName',
       key: 'userName',
-      render: (text) => text || 'Not updated'
+      render: (text) => text || 'Not updated',
+      className: 'whitespace-nowrap'
     },
     {
       title: 'Email',
       dataIndex: 'email',
       key: 'email',
+      className: 'whitespace-nowrap'
     },
     {
       title: 'Phone',
       dataIndex: 'phoneNumber',
       key: 'phoneNumber',
+      className: 'whitespace-nowrap'
     },
     {
       title: 'Address',
       dataIndex: 'address',
       key: 'address',
+      className: 'whitespace-nowrap'
     },
     {
       title: 'Gender',
       dataIndex: 'gender',
       key: 'gender',
+      className: 'whitespace-nowrap'
     },
     {
       title: 'Date of Birth',
@@ -116,13 +122,15 @@ function CustomerPage() {
         } catch (error) {
           return text;
         }
-      }
+      },
+      className: 'whitespace-nowrap'
     },
     {
       title: 'Balance',
       dataIndex: 'money',
       key: 'money',
-      render: (money) => `$${money?.toLocaleString('en-US')}`
+      render: (money) => `$${money?.toLocaleString('en-US')}`,
+      className: 'whitespace-nowrap'
     },
     {
       title: 'Created Date',
@@ -135,7 +143,8 @@ function CustomerPage() {
         } catch (error) {
           return text;
         }
-      }
+      },
+      className: 'whitespace-nowrap'
     },
     {
       title: 'Status',
@@ -145,7 +154,8 @@ function CustomerPage() {
         <span className={`font-bold ${status === 'Active' ? 'text-green-500' : 'text-red-500'}`}>
           {status}
         </span>
-      )
+      ),
+      className: 'whitespace-nowrap'
     },
     {
       title: 'Actions',
@@ -156,20 +166,16 @@ function CustomerPage() {
             icon={<DeleteOutlined />} 
             danger
             onClick={() => {
-              Modal.confirm({
-                title: 'Bạn có chắc chắn muốn xóa khách hàng này?',
-                content: 'Hành động này không thể hoàn tác.',
-                okText: 'Có',
-                okType: 'danger',
-                cancelText: 'Không',
-                onOk: () => {
-                  handleDelete(record.id);
-                },
-              });
+              if (record.role === 'Manager') {
+                message.warning('Cannot delete Manager account');
+                return;
+              }
+              showDeleteConfirm(record.id, record.userName);
             }}
           />
         </div>
       ),
+      className: 'whitespace-nowrap'
     }
   ];
 
@@ -178,7 +184,7 @@ function CustomerPage() {
 
   return (
     <div className="p-6">
-      <div className="bg-white rounded-lg shadow">
+      <div className="bg-white rounded-lg shadow-lg">
         <Table 
           dataSource={customers} 
           columns={columns}

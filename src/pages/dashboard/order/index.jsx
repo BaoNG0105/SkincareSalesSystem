@@ -1,6 +1,6 @@
 import { Button, Modal, Table, Form, Input, Avatar } from 'antd';
 import { useState } from 'react';
-import { EditOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined, PlusOutlined, CheckOutlined } from '@ant-design/icons';
 
 function OrderPage() {
   const [isOpen, setIsOpen] = useState(false);
@@ -70,10 +70,6 @@ function OrderPage() {
   ]);
   const [editingOrder, setEditingOrder] = useState(null);
 
-  const handleAdd = (order) => {
-    setOrders([...orders, { ...order, key: orders.length + 1 }]);
-  };
-
   const handleUpdate = (updatedOrder) => {
     setOrders(orders.map(order => order.key === updatedOrder.key ? updatedOrder : order));
   };
@@ -119,7 +115,7 @@ function OrderPage() {
       key: 'actions',
       render: (_, record) => (
         <span>
-          <Button icon={<EditOutlined />} onClick={() => { setEditingOrder(record); setIsOpen(true); }} />
+          <Button icon={<CheckOutlined />} onClick={() => { setEditingOrder(record); setIsOpen(true); }} />
           <Button icon={<DeleteOutlined />} onClick={() => handleDelete(record.key)} danger />
         </span>
       ),
@@ -128,7 +124,6 @@ function OrderPage() {
 
   return (
     <div>
-      <Button onClick={() => setIsOpen(true)} type="primary" icon={<PlusOutlined />}>Add Order</Button>
       <Table dataSource={orders} columns={columns} />
       <Modal
         title={editingOrder ? "Edit Order" : "Add Order"}
@@ -145,7 +140,7 @@ function OrderPage() {
             avatar: form.avatar.value,
             key: editingOrder ? editingOrder.key : orders.length + 1
           };
-          editingOrder ? handleUpdate(newOrder) : handleAdd(newOrder);
+          handleUpdate(newOrder);
           setIsOpen(false);
           setEditingOrder(null);
         }}

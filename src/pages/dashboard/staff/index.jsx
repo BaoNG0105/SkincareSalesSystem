@@ -162,28 +162,33 @@ function StaffPage() {
           alt="avatar" 
           className="w-12 h-12 rounded-full object-cover"
         />
-      )
+      ),
+      className: 'whitespace-nowrap'
     },
     {
       title: 'Full Name',
       dataIndex: 'userName',
       key: 'userName',
-      render: (text) => text || 'Not updated'
+      render: (text) => text || 'Not updated',
+      className: 'whitespace-nowrap'
     },
     {
       title: 'Email',
       dataIndex: 'email',
       key: 'email',
+      className: 'whitespace-nowrap'
     },
     {
       title: 'Phone',
       dataIndex: 'phoneNumber',
       key: 'phoneNumber',
+      className: 'whitespace-nowrap'
     },
     {
       title: 'Address',
       dataIndex: 'address',
       key: 'address',
+      className: 'whitespace-nowrap'
     },
     {
       title: 'Role',
@@ -193,12 +198,14 @@ function StaffPage() {
         <span className={`font-bold ${role === 'Manager' ? 'text-blue-500' : 'text-green-500'}`}>
           {role}
         </span>
-      )
+      ),
+      className: 'whitespace-nowrap'
     },
     {
       title: 'Gender',
       dataIndex: 'gender',
       key: 'gender',
+      className: 'whitespace-nowrap'
     },
     {
       title: 'Date of Birth',
@@ -211,13 +218,15 @@ function StaffPage() {
         } catch (error) {
           return text;
         }
-      }
+      },
+      className: 'whitespace-nowrap'
     },
     {
       title: 'Balance',
       dataIndex: 'money',
       key: 'money',
-      render: (money) => `$${money?.toLocaleString('en-US')}`
+      render: (money) => `$${money?.toLocaleString('en-US')}`,
+      className: 'whitespace-nowrap'
     },
     {
       title: 'Created Date',
@@ -230,7 +239,8 @@ function StaffPage() {
         } catch (error) {
           return text;
         }
-      }
+      },
+      className: 'whitespace-nowrap'
     },
     {
       title: 'Status',
@@ -240,7 +250,8 @@ function StaffPage() {
         <span className={`font-bold ${status === 'Active' ? 'text-green-500' : 'text-red-500'}`}>
           {status}
         </span>
-      )
+      ),
+      className: 'whitespace-nowrap'
     },
     {
       title: 'Actions',
@@ -260,6 +271,7 @@ function StaffPage() {
           />
         </div>
       ),
+      className: 'whitespace-nowrap'
     }
   ];
 

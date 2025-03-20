@@ -52,7 +52,7 @@ const Dashboard = () => {
           </div>
         </main>
         <footer className="bg-white text-center p-4">
-          Ant Design ©{new Date().getFullYear()} Created by Ant UED
+          Skinne  ©{new Date().getFullYear()} Created by Skinne
         </footer>
       </div>
     </div>
