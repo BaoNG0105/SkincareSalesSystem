@@ -224,7 +224,7 @@ function Header() {
                         // Menu cho user đã đăng nhập
                         <>
                           <Link
-                            to="/profile"
+                            to={`/profile/${user.id}`}
                             className="flex items-center space-x-2 px-4 py-3 text-gray-700 
                               hover:bg-pink-50 rounded-xl hover:text-pink-600 transition-colors"
                           >

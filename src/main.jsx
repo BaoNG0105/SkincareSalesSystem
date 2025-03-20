@@ -13,9 +13,10 @@ import HomePage from "./pages/home/index.jsx";
 import SkinTestPage from "./pages/skinTest/index.jsx";
 import Routine from "./pages/routine/index.jsx";
 import LocationPage from "./pages/location/index.jsx";
-import CartPage from "./pages/cart/index.jsx";
 import AboutPage from "./pages/about/index.jsx";
 import BlogPage from "./pages/blog/index.jsx";
+import CartPage from "./pages/cart/index.jsx";
+import OrderStatusPage from "./pages/order-status/index.jsx";
 import CleanserPage from "./pages/product/cleanser/index.jsx";
 import FaceMaskPage from "./pages/product/faceMask/index.jsx";
 import MoisturizerPage from "./pages/product/moisturizer/index.jsx";
@@ -82,11 +83,11 @@ const router = createBrowserRouter([
 
   //Profile Page
   {
-    path: "/profile",
+    path: "/profile/:id",
     element: <MainLayout />,
     children: [
       {
-        path: "/profile",
+        path: "/profile/:id",
         element: <ProfilePage />,
       },
     ],
@@ -122,6 +123,18 @@ const router = createBrowserRouter([
     ],
   },
 
+  //Promotion Page
+  {
+    path: "/promotion",
+    element: <MainLayout />,
+    children: [
+      {
+        path: "/promotion",
+        element: <PromotionPage />,
+      },
+    ],
+  },
+
   //Category Page
   {
     path: "/category",
@@ -130,78 +143,6 @@ const router = createBrowserRouter([
       {
         path: "/category",
         element: <CategoryPage />,
-      },
-    ],
-  },
-
-  //Cart Page
-  {
-    path: "/cart",
-    element: <MainLayout />,
-    children: [
-      { 
-        path: "/cart",
-        element: <CartPage />,
-      },
-    ],
-  },
-
-  //Product Detail Page
-  {
-    path: "/product-detail/:id",
-    element: <MainLayout />,
-    children: [
-      {
-        path: "",
-        element: <ProductDetailPage />,
-      },
-    ],
-  },
-
-  //Product Search Page
-  {
-    path: "/product-search",
-    element: <MainLayout />,
-    children: [
-      {
-        path: "/product-search",
-        element: <ProductSearchPage />,
-      },
-    ],
-  },
-
-  //Product Compare Page
-  {
-    path: "/product-compare",
-    element: <MainLayout />,
-    children: [
-      {
-        path: "/product-compare",
-        element: <ProductComparePage />,
-      },
-    ],
-  },
-
-  //About Page
-  {
-    path: "/about",
-    element: <MainLayout />,
-    children: [
-      {
-        path: "/about",
-        element: <AboutPage />,
-      },
-    ],
-  },
-
-  //Blog Page
-  {
-    path: "/blog",
-    element: <MainLayout />,
-    children: [
-      {
-        path: "/blog",
-        element: <BlogPage />,
       },
     ],
   },
@@ -266,6 +207,90 @@ const router = createBrowserRouter([
     ],
   },
 
+  //Product Detail Page
+  {
+    path: "/product-detail/:id",
+    element: <MainLayout />,
+    children: [
+      {
+        path: "",
+        element: <ProductDetailPage />,
+      },
+    ],
+  },
+
+  //Product Search Page
+  {
+    path: "/product-search/:id",
+    element: <MainLayout />,
+    children: [
+      {
+        path: "/product-search/:id",
+        element: <ProductSearchPage />,
+      },
+    ],
+  },
+
+  //Product Compare Page
+  {
+    path: "/product-compare",
+    element: <MainLayout />,
+    children: [
+      {
+        path: "/product-compare",
+        element: <ProductComparePage />,
+      },
+    ],
+  },
+
+  //Cart Page
+  {
+    path: "/cart",
+    element: <MainLayout />,
+    children: [
+      {
+        path: "/cart",
+        element: <CartPage />,
+      },
+    ],
+  },
+
+  //Product Status Page
+  {
+    path: "/order-status/:id",
+    element: <MainLayout />,
+    children: [
+      {
+        path: "/order-status/:id",
+        element: <OrderStatusPage />,
+      },
+    ],
+  },
+
+  //About Page
+  {
+    path: "/about",
+    element: <MainLayout />,
+    children: [
+      {
+        path: "/about",
+        element: <AboutPage />,
+      },
+    ],
+  },
+
+  //Blog Page
+  {
+    path: "/blog",
+    element: <MainLayout />,
+    children: [
+      {
+        path: "/blog",
+        element: <BlogPage />,
+      },
+    ],
+  },
+
   //FAQs Page
   {
     path: "/faqs",
@@ -326,18 +351,6 @@ const router = createBrowserRouter([
     ],
   },
 
-  //Promotion Page
-  {
-    path: "/promotion",
-    element: <MainLayout />,
-    children: [
-      {
-        path: "/promotion",
-        element: <PromotionPage />,
-      },
-    ],
-  },
-
   //Dashboard Page
   {
     path: "/dashboard",
@@ -385,9 +398,10 @@ const router = createBrowserRouter([
       },
     ],
   },
-   //Mangage overview
-   {
-    path: "/dashboard",
+
+  //Overview Page
+  {
+    path: "/dashboard/overview",
     element: <Dashboard />,
     children: [
       {
@@ -402,6 +416,6 @@ createRoot(document.getElementById("root")).render(
   <StrictMode>
     <Effect /> {/* Thêm Effect Hoa đào rơi */}
     <RouterProvider router={router} /> {/* Router các pages */}
-    <ToastContainer />
+    <ToastContainer /> {/* Toast hiển thị thông báo */}
   </StrictMode>
 );

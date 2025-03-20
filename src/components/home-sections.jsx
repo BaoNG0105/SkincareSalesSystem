@@ -72,6 +72,14 @@ const ProductSection = ({ category }) => {
                   <div className="text-xl font-bold text-[#C91F50] mb-4">
                     {product.price.toLocaleString()} ₫
                   </div>
+
+                  <div className="flex items-center gap-2 mb-4">
+                    <span className="text-sm text-gray-600">Available:</span>
+                    <span className="px-2 py-1 rounded text-sm bg-blue-100 text-blue-800">
+                      {product.stockQuantity} items
+                    </span>
+                  </div>
+
                   <div className="space-y-3">
                     <button
                       onClick={() =>

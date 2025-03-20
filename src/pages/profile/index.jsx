@@ -18,6 +18,7 @@ import {
   FaWallet,
   FaSave,
   FaKey,
+  FaShoppingBag,
 } from "react-icons/fa";
 
 function ProfilePage() {
@@ -515,8 +516,8 @@ function ProfilePage() {
                   </div>
                 </div>
 
-                {/* Updated buttons */}
-                <div className="flex space-x-4">
+                {/* Updated buttons section with View Orders */}
+                <div className="flex flex-wrap gap-4">
                   <button
                     onClick={() => setIsEditModalOpen(true)}
                     className="flex items-center px-6 py-3 bg-gradient-to-r from-pink-500 to-pink-600 
@@ -532,6 +533,14 @@ function ProfilePage() {
                       transition-all duration-200 shadow-md hover:shadow-lg"
                   >
                     <FaLock className="mr-2" /> Change Password
+                  </button>
+                  <button
+                    onClick={() => navigate(`/order-status/${user?.id}`)}
+                    className="flex items-center px-6 py-3 bg-gradient-to-r from-pink-400 to-pink-500 
+                      text-white rounded-lg hover:from-pink-500 hover:to-pink-600 
+                      transition-all duration-200 shadow-md hover:shadow-lg"
+                  >
+                    <FaShoppingBag className="mr-2" /> View Orders
                   </button>
                 </div>
               </div>

@@ -3,8 +3,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import { getProductById, getRelatedProducts } from "../../services/api.product";
 import {
   getOrderIdAndStatusByUserId,
-  postOrderId,
-  postOrderItems,
+  addOrderId,
+  addOrderItems,
 } from "../../services/api.order";
 import { toast } from "react-toastify";
 import { FaExchangeAlt, FaShoppingCart, FaMoneyBillWave } from "react-icons/fa";
@@ -86,11 +86,11 @@ const ProductDetailPage = () => {
       console.log("Existing order:", order);
       // Step 2: If no orderId exists, create a new one
       if (!order) {
-        const newOrder = await postOrderId({
+        const newOrder = await addOrderId({
           userId: customerId,
           totalPrice: 0,
         });
-        await postOrderItems({
+        await addOrderItems({
           orderId: newOrder.orderId,
           productId: product.productId,
           quantity: quantity,
@@ -103,7 +103,7 @@ const ProductDetailPage = () => {
           throw new Error("Invalid order data");
         }
 
-        await postOrderItems({
+        await addOrderItems({
           orderId: order[0].orderId,
           productId: product.productId,
           quantity: quantity,
