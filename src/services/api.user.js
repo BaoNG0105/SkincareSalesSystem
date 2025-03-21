@@ -51,8 +51,8 @@ export const deleteUserByUserId = async (id) => {
   }
 };
 
-//API post staff
-export const postStaff = async (submitData) => {
+//API create staff
+export const createStaff = async (submitData) => {
   try {
     const response = await api.post("users/create-staff", submitData);
     return response.data;

@@ -1,419 +1,349 @@
-import { 
-  Button, 
-  Modal, 
-  Table, 
-  Form, 
-  Input, 
-  Select,
-  message,
-  Space
-} from 'antd';
-import React, { useState, useEffect } from 'react';
-import { EditOutlined, DeleteOutlined, PlusOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
-import api from '../../../config/axios';
+/* eslint-disable react-hooks/exhaustive-deps */
+import { useState, useEffect } from "react";
+import { FaTrash, FaPlus } from "react-icons/fa";
+import { toast } from "react-toastify";
+import {
+  getUsers,
+  deleteUserByUserId,
+  createStaff,
+} from "../../../services/api.user";
 
 function StaffPage() {
-  const [isOpen, setIsOpen] = useState(false);
   const [staffs, setStaffs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [editingStaff, setEditingStaff] = useState(null);
-  const [form] = Form.useForm();
-  const [confirmLoading, setConfirmLoading] = useState(false);
-  const { confirm } = Modal;
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    email: "",
+    passwordHash: "123456",
+    userName: "",
+    gender: "Male",
+    dateOfBirth: "",
+    address: "",
+    phoneNumber: "",
+    profileImage: "",
+  });
 
   useEffect(() => {
     fetchStaffs();
   }, []);
 
   const mapStatus = (status) => {
-    return status ? 'Active' : 'Inactive';
+    return status ? "Active" : "Inactive";
   };
 
   const mapGender = (gender) => {
-    return gender === 'Male' ? 'Male' : 'Female';
+    return gender === "Male" ? "Male" : "Female";
   };
 
   const fetchStaffs = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/users');
-      if (response.data) {
-        const staffData = response.data.filter(user => 
-          user.role === 'Staff' || user.role === 'Manager'
-        );
-        const mappedStaffs = staffData.map(staff => ({
+      const response = await getUsers();
+      if (response) {
+        const staffData = response.filter((user) => user.role === "Staff");
+        const mappedStaffs = staffData.map((staff) => ({
           ...staff,
           key: staff.id.toString(),
           status: mapStatus(staff.status),
-          gender: mapGender(staff.gender)
+          gender: mapGender(staff.gender),
         }));
-        console.log('Mapped Staffs:', mappedStaffs);
         setStaffs(mappedStaffs);
       }
     } catch (err) {
-      console.error('Error loading staff list:', err);
-      setError('Unable to load staff list');
-      message.error('Unable to load staff list');
+      console.error("Error loading staff list:", err);
+      setError("Unable to load staff list");
+      toast.error("Unable to load staff list");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleAdd = async (values) => {
-    try {
-      setConfirmLoading(true);
-      const newStaff = {
-        ...values,
-        password: "123456", // Mật khẩu mặc định
-        status: values.status === 'Active',
-        enabled: true,
-        accountNonExpired: true,
-        credentialsNonExpired: true,
-        accountNonLocked: true
-      };
-
-      const response = await api.post('/users', newStaff);
-      if (response.status === 201 || response.status === 200) {
-        message.success('Thêm nhân viên thành công');
-        form.resetFields();
-        setIsOpen(false);
-        await fetchStaffs();
-      }
-    } catch (err) {
-      message.error('Lỗi khi thêm nhân viên: ' + (err.response?.data?.message || err.message));
-    } finally {
-      setConfirmLoading(false);
-    }
-  };
-
-  const handleUpdate = async (values) => {
-    try {
-      setConfirmLoading(true);
-      const updatedStaff = {
-        ...values,
-        id: editingStaff.id,
-        status: values.status === 'Active',
-        money: editingStaff.money || 0
-      };
-
-      const response = await api.put(`/users/${editingStaff.id}`, updatedStaff);
-      if (response.status === 200) {
-        message.success('Cập nhật thành công');
-        form.resetFields();
-        setIsOpen(false);
-        setEditingStaff(null);
-        await fetchStaffs();
-      }
-    } catch (err) {
-      message.error('Lỗi khi cập nhật: ' + (err.response?.data?.message || err.message));
-    } finally {
-      setConfirmLoading(false);
-    }
-  };
-
   const handleDelete = async (userId) => {
-    try {
-      const response = await api.delete(`/users/${userId}`);
-      if (response) {
-        setStaffs(prevStaffs => 
-          prevStaffs.filter(staff => staff.id !== userId)
-        );
-        message.success('Xóa nhân viên thành công');
+    if (window.confirm("Are you sure you want to delete this staff?")) {
+      try {
+        const response = await deleteUserByUserId(userId);
+        if (response) {
+          setStaffs((prevStaffs) =>
+            prevStaffs.filter((staff) => staff.id !== userId)
+          );
+          toast.success("Delete staff successfully");
+        }
+      } catch (err) {
+        console.error("Error when deleting staff:", err);
+        toast.error("Cannot delete staff");
       }
-    } catch (err) {
-      console.error('Lỗi khi xóa nhân viên:', err);
-      message.error('Không thể xóa nhân viên');
     }
   };
 
-  const handleEdit = (record) => {
-    const formattedStaff = {
-      ...record,
-      dateOfBirth: record.dateOfBirth ? record.dateOfBirth.split('T')[0] : '',
-      status: record.status === 'Active' ? 'Active' : 'Inactive',
-      money: record.money || 0
-    };
-    setEditingStaff(record);
-    form.setFieldsValue(formattedStaff);
-    setIsOpen(true);
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
-  const showDeleteConfirm = (staffId, staffName) => {
-    confirm({
-      title: 'Xác nhận xóa',
-      icon: <ExclamationCircleOutlined />,
-      content: `Bạn có chắc chắn muốn xóa nhân viên "${staffName}"?`,
-      okText: 'Có',
-      okType: 'danger',
-      cancelText: 'Không',
-      onOk: () => handleDelete(staffId)
-    });
-  };
-
-  const columns = [
-    {
-      title: 'Avatar',
-      dataIndex: 'profileImage',
-      key: 'profileImage',
-      render: (text) => (
-        <img 
-          src={text} 
-          alt="avatar" 
-          className="w-12 h-12 rounded-full object-cover"
-        />
-      ),
-      className: 'whitespace-nowrap'
-    },
-    {
-      title: 'Full Name',
-      dataIndex: 'userName',
-      key: 'userName',
-      render: (text) => text || 'Not updated',
-      className: 'whitespace-nowrap'
-    },
-    {
-      title: 'Email',
-      dataIndex: 'email',
-      key: 'email',
-      className: 'whitespace-nowrap'
-    },
-    {
-      title: 'Phone',
-      dataIndex: 'phoneNumber',
-      key: 'phoneNumber',
-      className: 'whitespace-nowrap'
-    },
-    {
-      title: 'Address',
-      dataIndex: 'address',
-      key: 'address',
-      className: 'whitespace-nowrap'
-    },
-    {
-      title: 'Role',
-      dataIndex: 'role',
-      key: 'role',
-      render: (role) => (
-        <span className={`font-bold ${role === 'Manager' ? 'text-blue-500' : 'text-green-500'}`}>
-          {role}
-        </span>
-      ),
-      className: 'whitespace-nowrap'
-    },
-    {
-      title: 'Gender',
-      dataIndex: 'gender',
-      key: 'gender',
-      className: 'whitespace-nowrap'
-    },
-    {
-      title: 'Date of Birth',
-      dataIndex: 'dateOfBirth',
-      key: 'dateOfBirth',
-      render: (text) => {
-        if (!text) return 'Not updated';
-        try {
-          return new Date(text).toLocaleDateString('en-US');
-        } catch (error) {
-          return text;
-        }
-      },
-      className: 'whitespace-nowrap'
-    },
-    {
-      title: 'Balance',
-      dataIndex: 'money',
-      key: 'money',
-      render: (money) => `$${money?.toLocaleString('en-US')}`,
-      className: 'whitespace-nowrap'
-    },
-    {
-      title: 'Created Date',
-      dataIndex: 'createdAt',
-      key: 'createdAt',
-      render: (text) => {
-        if (!text) return 'Not updated';
-        try {
-          return new Date(text).toLocaleDateString('en-US');
-        } catch (error) {
-          return text;
-        }
-      },
-      className: 'whitespace-nowrap'
-    },
-    {
-      title: 'Status',
-      dataIndex: 'status',
-      key: 'status',
-      render: (status) => (
-        <span className={`font-bold ${status === 'Active' ? 'text-green-500' : 'text-red-500'}`}>
-          {status}
-        </span>
-      ),
-      className: 'whitespace-nowrap'
-    },
-    {
-      title: 'Actions',
-      key: 'actions',
-      render: (_, record) => (
-        <div className="flex gap-2">
-          <Button 
-            icon={<DeleteOutlined />} 
-            danger
-            onClick={() => {
-              if (record.role === 'Manager') {
-                message.warning('Cannot delete Manager account');
-                return;
-              }
-              showDeleteConfirm(record.id, record.userName);
-            }}
-          />
-        </div>
-      ),
-      className: 'whitespace-nowrap'
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await createStaff(formData);
+      if (response) {
+        toast.success("Staff created successfully");
+        setIsModalOpen(false);
+        setFormData({
+          email: "",
+          passwordHash: "123456",
+          userName: "",
+          gender: "Male",
+          dateOfBirth: "",
+          address: "",
+          phoneNumber: "",
+          profileImage: "",
+        });
+        fetchStaffs();
+      }
+    } catch (error) {
+      console.error("Error creating staff:", error);
+      toast.error("Failed to create staff");
     }
-  ];
+  };
+
+  const formatDate = (date) => {
+    if (!date) return "Not updated";
+    try {
+      return new Date(date).toLocaleDateString("en-US");
+    } catch (error) {
+      console.error("Error when formatting date:", error);
+      return date;
+    }
+  };
+
+  if (loading)
+    return (
+      <div className="flex justify-center items-center py-8">Loading...</div>
+    );
+  if (error)
+    return (
+      <div className="flex justify-center items-center py-8 text-red-600">
+        {error}
+      </div>
+    );
 
   return (
-    <div className="p-6">
-      <div className="bg-white rounded-lg shadow">
-        <Table 
-          dataSource={staffs} 
-          columns={columns}
-          pagination={{
-            pageSize: 10,
-            showTotal: (total, range) => (
-              <span className="text-gray-600">
-                {`${range[0]}-${range[1]} of ${total} staffs`}
-              </span>
-            )
-          }}
-          className="w-full"
-        />
+    <div className="w-full h-full p-6">
+      <div className="mb-4">
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+        >
+          <FaPlus /> Add New Staff
+        </button>
       </div>
 
-      <Modal
-        title={editingStaff ? "Cập nhật thông tin nhân viên" : "Thêm nhân viên mới"}
-        open={isOpen}
-        confirmLoading={confirmLoading}
-        onCancel={() => {
-          setIsOpen(false);
-          setEditingStaff(null);
-          form.resetFields();
-        }}
-        okText={editingStaff ? "Cập nhật" : "Thêm"}
-        cancelText="Hủy"
-        onOk={() => {
-          form.validateFields()
-            .then(values => {
-              if (editingStaff) {
-                handleUpdate(values);
-              } else {
-                handleAdd(values);
-              }
-            })
-            .catch(info => {
-              console.log('Validation Failed:', info);
-            });
-        }}
-      >
-        <Form
-          form={form}
-          layout="vertical"
-          initialValues={editingStaff ? {
-            ...editingStaff,
-            status: editingStaff.status === 'Active' ? 'Active' : 'Inactive',
-            dateOfBirth: editingStaff.dateOfBirth ? editingStaff.dateOfBirth.split('T')[0] : ''
-          } : {
-            status: 'Active',
-            role: 'Staff',
-            gender: 'Male'
-          }}
-        >
-          <Form.Item 
-            label="Họ và tên" 
-            name="userName"
-            rules={[{ required: true, message: 'Vui lòng nhập họ và tên!' }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item 
-            label="Email" 
-            name="email"
-            rules={[
-              { required: true, message: 'Vui lòng nhập email!' },
-              { type: 'email', message: 'Email không hợp lệ!' }
-            ]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item 
-            label="Số điện thoại" 
-            name="phoneNumber"
-            rules={[{ required: true, message: 'Vui lòng nhập số điện thoại!' }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item 
-            label="Địa chỉ" 
-            name="address"
-            rules={[{ required: true, message: 'Vui lòng nhập địa chỉ!' }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item 
-            label="Chức vụ" 
-            name="role"
-            rules={[{ required: true, message: 'Vui lòng chọn chức vụ!' }]}
-          >
-            <Select>
-              <Select.Option value="Manager">Quản lý</Select.Option>
-              <Select.Option value="Staff">Nhân viên</Select.Option>
-            </Select>
-          </Form.Item>
-          <Form.Item 
-            label="Giới tính" 
-            name="gender"
-            rules={[{ required: true, message: 'Vui lòng chọn giới tính!' }]}
-          >
-            <Select>
-              <Select.Option value="Male">Nam</Select.Option>
-              <Select.Option value="Female">Nữ</Select.Option>
-            </Select>
-          </Form.Item>
-          <Form.Item 
-            label="Ngày sinh" 
-            name="dateOfBirth"
-            rules={[{ required: true, message: 'Vui lòng nhập ngày sinh!' }]}
-          >
-            <Input type="date" />
-          </Form.Item>
-          <Form.Item 
-            label="Trạng thái" 
-            name="status"
-          >
-            <Select>
-              <Select.Option value="Active">Hoạt động</Select.Option>
-              <Select.Option value="Inactive">Không hoạt động</Select.Option>
-            </Select>
-          </Form.Item>
-          <Form.Item 
-            label="Ảnh đại diện" 
-            name="profileImage"
-          >
-            <Input placeholder="Nhập URL ảnh" />
-          </Form.Item>
-          {editingStaff && (
-            <Form.Item 
-              label="Số dư" 
-              name="money"
-            >
-              <Input type="number" disabled />
-            </Form.Item>
-          )}
-        </Form>
-      </Modal>
+      <div className="bg-white rounded-lg shadow-lg w-full">
+        <div className="overflow-x-auto">
+          <table className="w-full table-fixed">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-4 py-2">Full Name</th>
+                <th className="px-4 py-2">Email</th>
+                <th className="px-4 py-2">Phone</th>
+                <th className="px-4 py-2">Address</th>
+                <th className="px-4 py-2">Role</th>
+                <th className="px-4 py-2">Gender</th>
+                <th className="px-4 py-2">Date of Birth</th>
+                <th className="px-4 py-2">Created Date</th>
+                <th className="px-4 py-2">Status</th>
+                <th className="px-4 py-2">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {staffs.map((staff) => (
+                <tr key={staff.id} className="hover:bg-gray-50">
+                  <td className="px-4 py-2 truncate">
+                    {staff.userName || "Not updated"}
+                  </td>
+                  <td className="px-4 py-2 truncate">{staff.email}</td>
+                  <td className="px-4 py-2 truncate">{staff.phoneNumber}</td>
+                  <td className="px-4 py-2 truncate">{staff.address}</td>
+                  <td className="px-4 py-2">
+                    <span
+                      className={`font-semibold ${
+                        staff.role === "Manager"
+                          ? "text-blue-600"
+                          : "text-green-600"
+                      }`}
+                    >
+                      {staff.role}
+                    </span>
+                  </td>
+                  <td className="px-4 py-2 truncate">{staff.gender}</td>
+                  <td className="px-4 py-2 truncate">
+                    {formatDate(staff.dateOfBirth)}
+                  </td>
+                  <td className="px-4 py-2 truncate">
+                    {formatDate(staff.createdAt)}
+                  </td>
+                  <td className="px-4 py-2">
+                    <span
+                      className={`px-2 py-1 rounded-full text-sm font-semibold
+                      ${
+                        staff.status === "Active"
+                          ? "bg-green-100 text-green-800"
+                          : "bg-red-100 text-red-800"
+                      }`}
+                    >
+                      {staff.status}
+                    </span>
+                  </td>
+                  <td className="px-4 py-2">
+                    <button
+                      onClick={() => {
+                        if (staff.role === "Manager") {
+                          toast.warning("Cannot delete Manager account");
+                          return;
+                        }
+                        handleDelete(staff.id);
+                      }}
+                      className="p-2 text-red-600 hover:text-red-800 hover:bg-red-100 rounded-full transition-colors"
+                    >
+                      <FaTrash />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <h2 className="text-xl font-bold mb-4">Add New Staff</h2>
+
+            <form onSubmit={handleSubmit}>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Full Name
+                  </label>
+                  <input
+                    type="text"
+                    name="userName"
+                    value={formData.userName}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Phone Number
+                  </label>
+                  <input
+                    type="tel"
+                    name="phoneNumber"
+                    value={formData.phoneNumber}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Address
+                  </label>
+                  <input
+                    type="text"
+                    name="address"
+                    value={formData.address}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Gender
+                  </label>
+                  <select
+                    name="gender"
+                    value={formData.gender}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    required
+                  >
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Date of Birth
+                  </label>
+                  <input
+                    type="date"
+                    name="dateOfBirth"
+                    value={formData.dateOfBirth}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Profile Image URL
+                  </label>
+                  <input
+                    type="text"
+                    name="profileImage"
+                    value={formData.profileImage}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+
+              <div className="mt-6 flex justify-end space-x-3">
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                >
+                  Create Staff
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -73,7 +73,6 @@ function CustomerPage() {
       <th className="px-4 py-2">Address</th>
       <th className="px-4 py-2">Gender</th>
       <th className="px-4 py-2">Date of Birth</th>
-      <th className="px-4 py-2">Balance</th>
       <th className="px-4 py-2">Created Date</th>
       <th className="px-4 py-2">Status</th>
       <th className="px-4 py-2">Actions</th>
@@ -117,7 +116,6 @@ function CustomerPage() {
                   <td className="px-4 py-2 truncate">{customer.address}</td>
                   <td className="px-4 py-2 truncate">{customer.gender}</td>
                   <td className="px-4 py-2 truncate">{formatDate(customer.dateOfBirth)}</td>
-                  <td className="px-4 py-2 truncate">{customer.money?.toLocaleString("vi-VN")} ₫</td>
                   <td className="px-4 py-2 truncate">{formatDate(customer.createdAt)}</td>
                   <td className="px-4 py-2">
                     <span
