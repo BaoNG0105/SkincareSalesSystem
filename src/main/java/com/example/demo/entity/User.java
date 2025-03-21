@@ -27,7 +27,7 @@ public class User implements UserDetails {
     @Column(name = "user_id")  // BIGINT AUTO_INCREMENT
     private Long id;
 
-    @Column(name = "user_name", nullable = false, unique = true)
+    @Column(name = "user_name", nullable = false)
     private String userName;  // VARCHAR(255)
 
     @Column(name = "email", nullable = false, unique = true)

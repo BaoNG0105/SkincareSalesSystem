@@ -92,7 +92,13 @@ public class OrderItemService {
         OrderItem orderItem = orderItemRepository.findByOrderItemIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new RuntimeException("Order not found with id = " + id));
         orderItem.setDeleted(true);
-        return orderItemRepository.save(orderItem);
+
+        orderItemRepository.save(orderItem);
+
+        // Cập nhật totalPrice trong Order
+        updateOrderTotalPrice(orderItem.getOrder());
+
+        return orderItem;
     }
     public List<OrderItem> getOrderItemByOrderId(Long orderId) {
 
