@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @CrossOrigin(origins = "http://localhost:5173")
@@ -40,7 +41,7 @@ public class OrderController {
     public ResponseEntity<List<Order>> getOrdersByCustomerIdAndStatus(@PathVariable Long customerId, @RequestParam String status) {
         OrderStatus orderStatus;
         try {
-            orderStatus = OrderStatus.valueOf(status.toUpperCase()); // Chuyển thành in hoa
+            orderStatus = OrderStatus.valueOf(status.toUpperCase());
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build(); // Trả về lỗi nếu status sai
         }
@@ -82,6 +83,11 @@ public class OrderController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(null); // Trả về lỗi nếu status sai
         }
+    }
+
+    @PutMapping("{orderId}/price")
+    public ResponseEntity<Order> updatePriceOrder(@PathVariable Long orderId, @RequestParam BigDecimal price){
+        return ResponseEntity.ok(orderService.updatePriceOrder(orderId, price));
     }
 
     @DeleteMapping("/{orderId}")

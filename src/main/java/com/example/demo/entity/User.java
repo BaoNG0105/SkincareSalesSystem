@@ -27,7 +27,7 @@ public class User implements UserDetails {
     @Column(name = "user_id")  // BIGINT AUTO_INCREMENT
     private Long id;
 
-    @Column(name = "user_name", nullable = false, unique = true)
+    @Column(name = "user_name", nullable = false)
     private String userName;  // VARCHAR(255)
 
     @Column(name = "email", nullable = false, unique = true)
@@ -70,7 +70,7 @@ public class User implements UserDetails {
     private String googleAccountId;
 
     // money DECIMAL(18,2) NOT NULL DEFAULT 0
-    @Column(name = "money", nullable = false, columnDefinition = "DECIMAL(18,2) DEFAULT 0")
+    @Column(name = "money", columnDefinition = "DECIMAL(18,2) DEFAULT 0")
     private BigDecimal money = BigDecimal.ZERO;
 
     @OneToMany(mappedBy = "customer")

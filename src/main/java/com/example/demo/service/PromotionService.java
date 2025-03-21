@@ -7,6 +7,8 @@ import com.example.demo.repository.PromotionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -57,5 +59,16 @@ public class PromotionService {
     public Promotion getPromotionById(long promotionId) {
         return promotionRepository.findByPromotionIdAndAvailableTrue(promotionId)
                 .orElseThrow(() -> new RuntimeException("Promotion not found"));
+    }
+
+    public Promotion getAllPromotionsByCode(String code) {
+        Promotion promotion = promotionRepository.findByCodeAndAvailableTrue(code)
+                .orElseThrow(() -> new RuntimeException("Promotion not found"));
+        LocalDateTime currentDateTime = LocalDateTime.now();
+        if (!currentDateTime.isBefore(promotion.getStartDate()) && !currentDateTime.isAfter(promotion.getEndDate())) {
+            return promotion;
+        } else {
+            return null;
+        }
     }
 }

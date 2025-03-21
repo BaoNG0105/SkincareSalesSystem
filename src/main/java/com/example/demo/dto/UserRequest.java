@@ -37,9 +37,7 @@ public class UserRequest {
     @Column(name = "profile_image", columnDefinition = "TEXT")
     private String profileImage;
 
-    // money DECIMAL(18,2) NOT NULL DEFAULT 0
-    @Column(name = "money", nullable = false, columnDefinition = "DECIMAL(18,2) DEFAULT 0")
-    private BigDecimal money = BigDecimal.ZERO;
+
 
 
 
@@ -94,12 +92,5 @@ public class UserRequest {
         this.profileImage = profileImage;
     }
 
-    public BigDecimal getMoney() {
-        return money;
-    }
-
-    public void setMoney(BigDecimal money) {
-        this.money = money;
-    }
 
 }

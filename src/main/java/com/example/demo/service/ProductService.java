@@ -59,6 +59,16 @@ public class ProductService {
         return productRepository.save(product);
     }
 
+    public Product updateStockQuantity(long id,int quantity){
+        Product product = productRepository.findByProductIdAndStatusTrue(id)
+                .orElseThrow(() -> new RuntimeException("Product not found with ID: " + id));
+        if (product.getStockQuantity() - quantity > 0){
+            product.setStockQuantity(product.getStockQuantity() - quantity);
+            product.setUpdateAt(LocalDateTime.now());
+        }
+        return productRepository.save(product);
+    }
+
 
 
 }

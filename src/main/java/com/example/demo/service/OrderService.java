@@ -100,8 +100,8 @@ public class OrderService {
 
 
     // Tạo mới đơn hàng, mua bán trừ số lượng sản phẩm
-    @Autowired
-    ModelMapper modelMapper;
+//    @Autowired
+//    ModelMapper modelMapper;
 //    public String createOrder(OrderRequest orderRequest) throws Exception {
 //
 //        BigDecimal totalPrice = BigDecimal.ZERO;
@@ -259,6 +259,13 @@ public class OrderService {
 
         order.setUpdatedAt(LocalDateTime.now());
 
+        return orderRepository.save(order);
+    }
+    public Order updatePriceOrder(Long orderId, BigDecimal price){
+        Order order = orderRepository.findByOrderIdAndIsDeletedFalse(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+        order.setTotalPrice(price);
+        order.setUpdatedAt(LocalDateTime.now());
         return orderRepository.save(order);
     }
 

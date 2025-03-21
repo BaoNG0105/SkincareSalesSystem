@@ -44,4 +44,9 @@ public class PromotionController {
     public ResponseEntity<Promotion> updatePromotion(@PathVariable long id, @Valid @RequestBody PromotionRequest promotionRequest) {
         return ResponseEntity.ok(promotionService.updatePromotion(id, promotionRequest));
     }
+
+    @GetMapping("/code")
+    public ResponseEntity<Promotion> getPromotionByCode(@RequestParam String code){
+        return ResponseEntity.ok(promotionService.getAllPromotionsByCode(code.toUpperCase()));
+    }
 }

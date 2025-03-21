@@ -14,5 +14,7 @@ import java.util.Optional;
 public interface PromotionRepository extends JpaRepository<Promotion, Long> {
     List<Promotion> findByAvailableTrue();
     Optional<Promotion> findByPromotionIdAndAvailableTrue(Long id);
+    Optional<Promotion> findByCodeAndAvailableTrue(String code);
+
 }
 

@@ -87,14 +87,18 @@ public class OrderItemService {
         return updatedOrderItem;
     }
 
+
     // Xóa OrderItem
     public OrderItem deleteOrderItem(Long id) {
         OrderItem orderItem = orderItemRepository.findByOrderItemIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new RuntimeException("Order not found with id = " + id));
-
         orderItem.setDeleted(true);
+
         orderItemRepository.save(orderItem);
+
+        // Cập nhật totalPrice trong Order
         updateOrderTotalPrice(orderItem.getOrder());
+
         return orderItem;
     }
     public List<OrderItem> getOrderItemByOrderId(Long orderId) {
@@ -120,6 +124,8 @@ public class OrderItemService {
 
 
     }
+
+
 
     // Ch
 }

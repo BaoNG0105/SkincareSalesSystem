@@ -110,7 +110,6 @@ public class UserService {
             user.setAddress(userDetails.getAddress());
             user.setPhoneNumber(userDetails.getPhoneNumber());
             user.setProfileImage(userDetails.getProfileImage());
-            user.setMoney(userDetails.getMoney());
 
             return userRepository.save(user);
         }
