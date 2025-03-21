@@ -83,7 +83,7 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.POST, "/api/order/**").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/api/order/**").permitAll()
                                 .requestMatchers(HttpMethod.PUT, "/api/order/**").permitAll()
-                                .requestMatchers(HttpMethod.PUT, "/api/order/{orderId}/status").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/skin-types/**").permitAll()
                                 .requestMatchers(HttpMethod.DELETE, "/api/order-items/**").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/api/test-result/**").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/api/test-result/**").permitAll()

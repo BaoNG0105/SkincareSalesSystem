@@ -1,6 +1,5 @@
 package com.example.demo.controller;
 
-import com.example.demo.entity.SalesReportDetail;
 import com.example.demo.entity.SkinType;
 import com.example.demo.dto.SkinTypeRequest;
 import com.example.demo.service.SkinTypeService;
@@ -11,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/api/skin-types")
 public class SkinTypeController {

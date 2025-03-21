@@ -1,15 +1,10 @@
 package com.example.demo.service;
 
-import com.example.demo.dto.OrderItemRequest;
 import com.example.demo.dto.OrderRequest;
 import com.example.demo.entity.*;
 import com.example.demo.repository.OrderRepository;
-import com.example.demo.repository.ProductRepository;
 import com.example.demo.repository.UserRepository;
-import com.example.demo.repository.CancellationPolicyRepository;
-import com.example.demo.utils.AccountUtils;
 import com.example.demo.utils.OrderStatus;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

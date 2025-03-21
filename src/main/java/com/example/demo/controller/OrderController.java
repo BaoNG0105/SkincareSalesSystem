@@ -1,16 +1,11 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.OrderRequest;
-import com.example.demo.dto.RecommendedProductDTO;
 import com.example.demo.entity.Order;
-import com.example.demo.entity.RecommendedProduct;
 import com.example.demo.service.OrderService;
-import com.example.demo.service.RecommendedProductService;
 import com.example.demo.utils.OrderStatus;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;

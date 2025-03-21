@@ -1,6 +1,6 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.RecommendedProductDTO;
+import com.example.demo.dto.RecommendedProductRequest;
 import com.example.demo.entity.RecommendedProduct;
 import com.example.demo.service.RecommendedProductService;
 import jakarta.validation.Valid;
@@ -20,7 +20,7 @@ public class RecommendedProductController {
 
     // Create a new RecommendedProduct
     @PostMapping
-    public ResponseEntity<RecommendedProduct> createRecommendedProduct(@Valid @RequestBody RecommendedProductDTO recommendedProductDTO) {
+    public ResponseEntity<RecommendedProduct> createRecommendedProduct(@Valid @RequestBody RecommendedProductRequest recommendedProductDTO) {
         RecommendedProduct recommendedProduct = recommendedProductService.createRecommendedProduct(recommendedProductDTO);
         return ResponseEntity.ok(recommendedProduct);
     }
@@ -64,7 +64,7 @@ public class RecommendedProductController {
     @PutMapping("/{id}")
     public ResponseEntity<RecommendedProduct> updateRecommendedProduct(
             @PathVariable Long id,
-            @Valid @RequestBody RecommendedProductDTO recommendedProductDTO) {
+            @Valid @RequestBody RecommendedProductRequest recommendedProductDTO) {
         RecommendedProduct updatedRecommendedProduct = recommendedProductService.updateRecommendedProduct(id, recommendedProductDTO);
         return ResponseEntity.ok(updatedRecommendedProduct);
     }

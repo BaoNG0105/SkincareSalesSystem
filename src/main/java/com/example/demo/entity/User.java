@@ -2,6 +2,7 @@ package com.example.demo.entity;
 
 
 import com.example.demo.utils.Role;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.format.annotation.NumberFormat;
@@ -74,6 +75,7 @@ public class User implements UserDetails {
     private BigDecimal money = BigDecimal.ZERO;
 
     @OneToMany(mappedBy = "customer")
+    @JsonIgnore
     private List<RatingFeedback> ratingFeedbacks;
 
     @OneToMany(mappedBy = "author")

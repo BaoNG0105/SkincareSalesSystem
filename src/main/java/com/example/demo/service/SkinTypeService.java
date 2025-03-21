@@ -1,6 +1,5 @@
 package com.example.demo.service;
 
-import com.example.demo.entity.SalesReportDetail;
 import com.example.demo.entity.SkinType;
 import com.example.demo.dto.SkinTypeRequest;
 import com.example.demo.repository.SkinTypeRepository;

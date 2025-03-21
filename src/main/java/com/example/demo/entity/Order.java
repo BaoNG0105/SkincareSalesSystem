@@ -42,9 +42,6 @@ public class Order {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> orderItems = new ArrayList<>();
 
-    // Nối bảng OrderHistory
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<OrderHistory> orderHistories = new ArrayList<>();
 
     @Column(name = "is_deleted", nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
     private boolean isDeleted = false;
@@ -109,13 +106,6 @@ public class Order {
         this.orderItems = orderItems;
     }
 
-    public List<OrderHistory> getOrderHistories() {
-        return orderHistories;
-    }
-
-    public void setOrderHistories(List<OrderHistory> orderHistories) {
-        this.orderHistories = orderHistories;
-    }
 
     public boolean isDeleted() {
         return isDeleted;

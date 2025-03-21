@@ -1,6 +1,6 @@
 package com.example.demo.service;
 
-import com.example.demo.dto.RecommendedProductDTO;
+import com.example.demo.dto.RecommendedProductRequest;
 import com.example.demo.entity.Product;
 import com.example.demo.entity.RecommendedProduct;
 import com.example.demo.entity.SkinType;
@@ -24,7 +24,7 @@ public class RecommendedProductService {
     private SkinTypeRepository skinTypeRepository;
 
     // Create a new RecommendedProduct
-    public RecommendedProduct createRecommendedProduct(RecommendedProductDTO request) {
+    public RecommendedProduct createRecommendedProduct(RecommendedProductRequest request) {
         Product product = productRepository.findById(request.getProductId())
                 .orElseThrow(() -> new RuntimeException("Product not found with id " + request.getProductId()));
 
@@ -78,7 +78,7 @@ public class RecommendedProductService {
 
     }
 
-    public RecommendedProduct updateRecommendedProduct(Long id, RecommendedProductDTO request) {
+    public RecommendedProduct updateRecommendedProduct(Long id, RecommendedProductRequest request) {
         RecommendedProduct existing = recommendedProductRepository.findByRecommendationIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new RuntimeException("RecommendedProduct not found with id " + id));
 

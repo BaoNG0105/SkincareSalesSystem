@@ -51,13 +51,10 @@ public class Product {
 
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<FAQ> faqs;
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<RatingFeedback> ratingFeedbacks;
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RecommendedProduct> recommendedProducts;
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<SalesReportDetail> salesReportDetails;
 
     // Nối bảng Product với bảng OrderItem
     @OneToMany(mappedBy = "product")
@@ -144,11 +141,4 @@ public class Product {
         this.status = status;
     }
 
-    public List<FAQ> getFaqs() {
-        return faqs;
-    }
-
-    public void setFaqs(List<FAQ> faqs) {
-        this.faqs = faqs;
-    }
 }

@@ -2,9 +2,8 @@ package com.example.demo.dto;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.Data;
 
-public class RecommendedProductDTO {
+public class RecommendedProductRequest {
 
     @NotNull(message = "Product ID cannot be null")
     private Long productId;
