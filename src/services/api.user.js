@@ -31,7 +31,7 @@ export const updateUserPassword = async (userId, passwordData) => {
   }
 };
 
-//API update user
+//API update user by userId
 export const updateUserById = async (userId, userData) => {
   try {
     const response = await api.put(`users/${userId}`, userData);
@@ -41,10 +41,10 @@ export const updateUserById = async (userId, userData) => {
   }
 };
 
-//API delete user
-export const deleteUser = async (userId) => { 
+//API delete user by userId
+export const deleteUserByUserId = async (id) => { 
   try {
-    const response = await api.delete(`users/${userId}`);
+    const response = await api.delete(`users/${id}`);
     return response.data;
   } catch (error) {
     toast.error(error.response.data);
