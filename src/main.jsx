@@ -223,11 +223,11 @@
 
     //Product Search Page
     {
-      path: "/product-search/:id",
+      path: "/product-search",
       element: <MainLayout />,
       children: [
         {
-          path: "/product-search/:id",
+          path: "",
           element: <ProductSearchPage />,
         },
       ],
