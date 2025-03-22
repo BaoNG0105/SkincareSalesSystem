@@ -5,3 +5,5 @@ public enum Role {
     Staff,
     Manager
 }
+
+//@PreAuthorize("isAuthenticated()") khach chua dang nhap se bị chan

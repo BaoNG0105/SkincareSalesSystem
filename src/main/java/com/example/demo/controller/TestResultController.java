@@ -9,6 +9,7 @@ import com.example.demo.service.TestResultService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,6 +17,8 @@ import java.util.List;
 @RestController
 @CrossOrigin(origins = "http://localhost:5173")
 @RequestMapping("/api/test-result")
+@PreAuthorize("hasRole('ROLE_CUSTOMER')")
+
 public class TestResultController {
 
     @Autowired

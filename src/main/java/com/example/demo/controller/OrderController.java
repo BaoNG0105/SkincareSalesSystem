@@ -6,6 +6,7 @@ import com.example.demo.service.OrderService;
 import com.example.demo.utils.OrderStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -14,12 +15,16 @@ import java.util.List;
 @CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/api/order")
+@PreAuthorize("isAuthenticated()")
 public class OrderController {
 
     @Autowired
     private OrderService orderService;
 
     @PostMapping
+
+    @PreAuthorize("hasRole('ROLE_CUSTOMER')")
+
     public ResponseEntity<Order> createOrder(@RequestBody OrderRequest orderRequest) {
         Order order = orderService.createOrder(orderRequest);
         return ResponseEntity.ok(order);
@@ -27,7 +32,6 @@ public class OrderController {
 
 
     @GetMapping
-//    @PreAuthorize("hasRole('ROLE_MANAGER') or hasRole('ROLE_USER')")
     public ResponseEntity<List<Order>> getAllOrders() {
         return ResponseEntity.ok(orderService.getAllOrders());
     }
@@ -86,6 +90,8 @@ public class OrderController {
     }
 
     @DeleteMapping("/{orderId}")
+    @PreAuthorize("hasRole('ROLE_MANAGER') or hasRole('ROLE_STAFF')")
+
     public ResponseEntity<Void> deleteOrder(@PathVariable Long orderId) {
         orderService.deleteOrder(orderId);
         return ResponseEntity.noContent().build();

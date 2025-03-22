@@ -7,6 +7,7 @@ import com.example.demo.service.ProductService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,6 +20,8 @@ public class ProductController {
     ProductService productService;
 
     @PostMapping
+    @PreAuthorize("hasRole('ROLE_MANAGER') or hasRole('ROLE_STAFF')")
+
     public ResponseEntity<Product> createProduct(@Valid @RequestBody ProductRequest productRequest){
         return ResponseEntity.ok(productService.createProduct(productRequest));
     }
@@ -34,17 +37,23 @@ public class ProductController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_MANAGER') or hasRole('ROLE_STAFF')")
+
     public ResponseEntity<String> delete(@PathVariable long id){
         productService.delete(id);
         return ResponseEntity.ok("Deleted product with ID: " + id);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_MANAGER') or hasRole('ROLE_STAFF')")
+
     public ResponseEntity<Product> updateProduct(@PathVariable long id, @Valid @RequestBody ProductRequest productRequest) {
         return ResponseEntity.ok(productService.updateProduct(id, productRequest));
     }
 
     @PutMapping("/{id}/stock-quantity")
+    @PreAuthorize("hasRole('ROLE_MANAGER') or hasRole('ROLE_STAFF')")
+
     public ResponseEntity<Product> updateStockQuantity(@PathVariable long id, int quantity){
         return ResponseEntity.ok(productService.updateStockQuantity(id, quantity));
     }

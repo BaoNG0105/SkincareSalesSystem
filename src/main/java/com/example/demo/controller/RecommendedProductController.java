@@ -6,6 +6,7 @@ import com.example.demo.service.RecommendedProductService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.List;
 @CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/api/recommended-products")
+@PreAuthorize("isAuthenticated()")
 public class RecommendedProductController {
 
     @Autowired
@@ -20,6 +22,8 @@ public class RecommendedProductController {
 
     // Create a new RecommendedProduct
     @PostMapping
+    @PreAuthorize("hasRole('ROLE_MANAGER') or hasRole('ROLE_STAFF')")
+
     public ResponseEntity<RecommendedProduct> createRecommendedProduct(@Valid @RequestBody RecommendedProductRequest recommendedProductDTO) {
         RecommendedProduct recommendedProduct = recommendedProductService.createRecommendedProduct(recommendedProductDTO);
         return ResponseEntity.ok(recommendedProduct);
@@ -57,11 +61,15 @@ public class RecommendedProductController {
 
     // Soft delete a RecommendedProduct by its ID
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_MANAGER') or hasRole('ROLE_STAFF')")
+
     public ResponseEntity<String> deleteRecommendedProduct(@PathVariable Long id) {
         recommendedProductService.deleteRecommendedProduct(id);
         return ResponseEntity.ok("RecommendedProduct with ID " + id + " has been deleted.");
     }
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_MANAGER') or hasRole('ROLE_STAFF')")
+
     public ResponseEntity<RecommendedProduct> updateRecommendedProduct(
             @PathVariable Long id,
             @Valid @RequestBody RecommendedProductRequest recommendedProductDTO) {

@@ -40,18 +40,23 @@ public class BlogController {
 
     // Thêm mới một blog
     @PostMapping
+    @PreAuthorize("hasRole('ROLE_MANAGER')")
     public ResponseEntity<Blog> createBlog(@Valid @RequestBody BlogRequest blogRequest) {
         return ResponseEntity.ok(blogService.createBlog(blogRequest));
     }
 
     // Sửa blog
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_MANAGER') or hasRole('ROLE_STAFF')")
+
     public ResponseEntity<Blog> updateBlog(@PathVariable Long id, @Valid @RequestBody BlogRequest blogRequest) {
         return ResponseEntity.ok(blogService.updateBlog(id, blogRequest));
     }
 
-    // Xóa blog
+    // Xóa
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_MANAGER') or hasRole('ROLE_STAFF')")
+
     public ResponseEntity<String> deleteBlog(@PathVariable Long id) {
         blogService.deleteBlog(id);
         return ResponseEntity.ok("Deleted blog with ID: " + id);

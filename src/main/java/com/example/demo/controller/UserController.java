@@ -13,6 +13,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,6 +22,7 @@ import java.util.Optional;
 @CrossOrigin(origins = "http://localhost:5173") // Thêm port của frontend vào đây
 @RestController
 @RequestMapping("/api/users")
+@PreAuthorize("isAuthenticated()")
 //@SecurityRequirement(name = "api")
 public class UserController {
 
@@ -36,12 +38,15 @@ public class UserController {
 
 
     // Lấy user theo ID
+
     @GetMapping("/{id}")
     public ResponseEntity<User> getUserById(@PathVariable long id) {
         return ResponseEntity.ok(userService.getUserById(id));
     }
 
     @PostMapping("/create-staff")
+    @PreAuthorize("hasRole('ROLE_MANAGER')")
+
     public ResponseEntity createStaff(@Valid @RequestBody RegisterRequest registerRequest) {
         User newStaff = userService.registerStaff(registerRequest);
         return ResponseEntity.ok(newStaff);
