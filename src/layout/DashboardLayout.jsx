@@ -1,7 +1,13 @@
-import React from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, Navigate, useLocation } from 'react-router-dom';
 
-const Dashboard = () => {
+const DashboardLayout = () => {
+  const location = useLocation();
+
+  // Redirect to overview if at /dashboard
+  if (location.pathname === '/dashboard') {
+    return <Navigate to="/dashboard" replace />;
+  }
+
   return (
     <div className="flex h-screen">
       <aside className="w-64 bg-pink-300 text-white">
@@ -59,4 +65,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default DashboardLayout;
