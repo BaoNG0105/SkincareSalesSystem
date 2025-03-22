@@ -5,6 +5,7 @@
   import Effect from "./components/effect.jsx";
   import { ToastContainer } from "react-toastify";
   import ProtectedRoute from "./auth/protectedRoute.jsx";
+  import ManagerRoute from "./auth/managerRoute.jsx";
 
   import MainLayout from "./layout/MainLayout.jsx";
   import LoginPage from "./pages/login/index.jsx";
@@ -363,7 +364,11 @@
       children: [
         {
           path: "overview",
-          element: <OverviewPage />,
+          element: (
+            <ManagerRoute>
+              <OverviewPage />
+            </ManagerRoute>
+          ),
         },
         {
           path: "product",
@@ -371,7 +376,11 @@
         },
         {
           path: "staff",
-          element: <StaffPage />,
+          element: (
+            <ManagerRoute>
+              <StaffPage />
+            </ManagerRoute>
+          ),
         },
         {
           path: "order",
