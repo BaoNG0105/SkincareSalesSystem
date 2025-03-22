@@ -77,7 +77,7 @@ const ProductSection = ({ category }) => {
                 </h3>
 
                 <div className="text-xl font-bold text-[#C91F50] mb-2">
-                  {product.price.toLocaleString()} ₫
+                  {product.price.toLocaleString()} VND
                 </div>
 
                 <div className="flex items-center gap-2 mb-4">

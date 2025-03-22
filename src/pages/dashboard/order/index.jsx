@@ -127,7 +127,7 @@ function OrderPage() {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-semibold text-green-600">${order.totalPrice}</div>
+                    <div className="text-sm font-semibold text-green-600">{order.totalPrice} VND</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-600">{order.date}</div>

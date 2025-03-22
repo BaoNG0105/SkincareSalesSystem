@@ -161,7 +161,7 @@ function Header() {
                                 {product.productName}
                               </p>
                               <p className="text-pink-500 font-semibold">
-                                {product.price}đ
+                                {product.price} VND
                               </p>
                             </div>
                           </>

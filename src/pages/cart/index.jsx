@@ -299,7 +299,7 @@ function CartPage() {
                 {orders
                   .reduce((total, order) => total + order.totalPrice, 0)
                   .toLocaleString()}
-                ₫
+                VND
               </span>
             </div>
           </div>

@@ -191,7 +191,7 @@ const ProductDetailPage = () => {
           <div className="space-y-6">
             <h1 className="text-3xl font-bold">{product.productName}</h1>
             <p className="text-2xl font-bold text-red-600">
-              {product.price.toLocaleString()} ₫
+              {product.price.toLocaleString()} VND
             </p>
 
             <hr className="border-gray-200" />

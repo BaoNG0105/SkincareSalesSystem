@@ -154,7 +154,7 @@ function ProductPage() {
       title: 'Price',
       dataIndex: 'price',
       key: 'price',
-      render: (price) => `$${price.toLocaleString('en-US')}`,
+      render: (price) => `${price.toLocaleString('vi-VN')} VND`,
       sorter: (a, b) => a.price - b.price
     },
     {

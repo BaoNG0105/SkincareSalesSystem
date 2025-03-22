@@ -166,7 +166,7 @@ const Routine = () => {
                     </p>
                     {recommendation.product.price && (
                       <p className="text-pink-600 font-semibold mt-2 text-lg">
-                        {recommendation.product.price.toLocaleString()}đ
+                        {recommendation.product.price.toLocaleString()} VND
                       </p>
                     )}
                     <div className="flex items-center gap-2 mb-4">

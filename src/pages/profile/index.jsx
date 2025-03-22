@@ -15,7 +15,6 @@ import {
   FaCalendar,
   FaVenusMars,
   FaLock,
-  FaWallet,
   FaSave,
   FaKey,
   FaShoppingBag,
@@ -198,7 +197,6 @@ function ProfilePage() {
               <option value="">Select Gender</option>
               <option value="Male">Male</option>
               <option value="Female">Female</option>
-              <option value="Other">Other</option>
             </select>
           </div>
 
@@ -420,7 +418,7 @@ function ProfilePage() {
                   />
                 ) : (
                   <span className="text-5xl font-bold text-pink-600">
-                    {user?.userName?.charAt(0) || user?.email?.charAt(0)}
+                    {user?.userName?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase()}
                   </span>
                 )}
               </div>
@@ -551,15 +549,6 @@ function ProfilePage() {
                   Account Information
                 </h2>
                 <div className="grid grid-cols-2 gap-6">
-                  <div className="bg-gradient-to-br from-pink-50 to-purple-50 p-6 rounded-xl shadow-sm">
-                    <p className="text-pink-600 font-bold text-3xl mb-2">
-                      {new Intl.NumberFormat("vi-VN").format(user?.money || 0)}{" "}
-                      ₫
-                    </p>
-                    <p className="text-gray-600 flex items-center">
-                      <FaWallet className="mr-2" /> Balance
-                    </p>
-                  </div>
                   <div className="bg-gradient-to-br from-pink-50 to-purple-50 p-6 rounded-xl shadow-sm">
                     <p className="text-pink-600 font-bold text-lg mb-2">
                       {new Date(user?.createdAt).toLocaleDateString()}
